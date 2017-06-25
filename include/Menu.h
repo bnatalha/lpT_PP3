@@ -300,7 +300,7 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 			cout << "Venda cancelada." << endl;
 		}
 
-	}while(op != 5 or op != 0);
+	}while(op != 5 and op != 0);
 }
 
 
