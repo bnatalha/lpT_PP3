@@ -133,50 +133,29 @@ void Salgado::change()
 
 	string new_s;
 	float new_f;
-	char u;
-	
 
-	cout << "Insira novo fornecedor. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_provider(new_s);
-	cout << "Insira novo preço. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_price( std::stof(new_s) );
-	cout << "Insira novo codigo de barras. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_barcode(new_s);
-	cout << "Insira nova quantidade. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_quantity( std::stoi(new_s) );
+	// MUDANÇAS COMUNS DE PRODUTOS
+	change_product_specs();
 
 	// PROPRIOS DO PRODUTO
 
 	// SODIO
-	cout << "Insira novo sódio. >>" ;
-	cin >> new_f;	// Armazena o novo sódio em 'new_'
-	cin.ignore();
-	set_sodium(new_f);	// Modifica o sódio para o conteudo de 'new_'
-	cout << "sódio: \"" << get_sodium() << "\"" << endl;
+	cout << "Taxa de sódio atual: "<< get_sodium()<< "mg.";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo sódio. >>" ;
+		cin >> new_f;	// Armazena o novo sódio em 'new_'
+		cin.ignore();
+		set_sodium(new_f);	// Modifica o sódio para o conteudo de 'new_'
+	//	cout << "sódio: \"" << get_sodium() << "\"" << endl;
+	}
 
 	// GLUTEN
-	cout << "Contem glutem? (y/n). >>";
-	cin >> u;	// Armazena o novo glúten em 'u'
-	//cin.ignore();
-	// Modifica o glúten
-	if( u == 'y')	set_gluten(true);
-	cout << "glúten:  \"" << (get_gluten()?"":"NAO") << "contém\"."<< endl;
+	cout << "Glutem atual: " << (get_gluten()?"":"NÃO ") << "contém\".";
+	if ( my_question(" Deseja alterar?") ) set_gluten( !get_gluten() );
 
 	//LACTOSE
-	cout << "Contem lactose? (y/n). >>";
-	cin >> u;	// Armazena o novo lactose em 'u'
-	//cin.ignore();
-	// Modifica o lactose
-	if( u == 'y')	set_lactose(true);
-	cout << "lactose:  \"" << (get_lactose()?"":"NAO") << "contém\"."<< endl;			
+	cout << "Lactose atual:  \"" << (get_lactose()?"":"NÃO ") << "contém\".";
+	if ( my_question(" Deseja alterar?") ) set_lactose( !get_lactose() );
 }
 
 /**

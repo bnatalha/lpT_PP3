@@ -49,9 +49,10 @@ void menu_principal (Cesta& m_loja, Cesta& m_cliente)
 			<< "2) Cadastrar items na loja;" << endl
 			<< "3) Iniciar Compra;" << endl
 			<< "0) Finalizar o programa;" << endl
-			<< "Digite o número da operação a ser realizada. >>" << endl;
+			<< "Digite o número da operação a ser realizada. >>";
 		
 		op = set_number(0,3);	// Solicita do usuário a operação
+		cout << endl;
 
 		if( op == 1) //1) Consultar items na loja;
 			sub_consulta(m_loja, m_cliente, direction::loja_loja );
@@ -81,9 +82,10 @@ void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_l
 			<< "2) descadastrar;" << endl
 			<< "3) cadastrar;" << endl
 			<< "0) nada;" << endl
-			<< "Digite o número da operação a ser realizada. >>" << endl;
+			<< "Digite o número da operação a ser realizada. >>";
 		
 		op = set_number(0,3);
+		cout << endl;
 
 		// operações
 
@@ -146,6 +148,7 @@ void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_l
 void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 {
 	int op;	// Armazena operação interna
+	int op_2;	// Armazena operação interna da consulta (2)
 	string a_barcode;	// Armazena codigo de barras
 
 	do
@@ -154,9 +157,10 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 			<< "1) Consultar/alterar produto por código de barras;" << endl
 			<< "2) Listar produtos por tipo;" << endl
 			<< "0) voltar;" << endl
-			<< "Digite o número da operação a ser realizada. >>" << endl;
+			<< "Digite o número da operação a ser realizada. >>";
 	
 		op = set_number(0,2);	// Pega número válido
+		cout << endl;
 
 		// operações
 
@@ -200,22 +204,21 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 
 		if(op == 2)	//2) Listar produtos por tipo;
 		{
-			cout << "Insira o Tipo (disponíveis \"CD\" e \"Salgado\"). >>";
-			cin >> a_barcode;
-			cin.ignore();
+			cout << "Insira '1' para CD e '2' para Salgado. >>";
+			op_2 = set_number(1,2);	// Pega número válido
 
-			if(a_barcode == "CD")
+			if(op_2 == 1)	// CD
 			{
 				cout << "Imprimindo CDs:" << endl;
-				if(my_case == direction::loja_venda or my_case == direction::loja_loja) m_loja.print_type(cout, a_barcode);
-				else  m_cliente.print_type(cout, a_barcode);
+				if(my_case == direction::loja_venda or my_case == direction::loja_loja) m_loja.print_type(cout, "CD");
+				else  m_cliente.print_type(cout, "CD");
 				cout << endl << "--Fim--" << endl;
 			}
-			else if(a_barcode == "Salgado")
+			else if(op_2 == 2)	// Salgado
 			{
 				cout << "Imprimindo Salgado:" << endl;
-				if(my_case == direction::loja_venda or my_case == direction::loja_loja) m_loja.print_type(cout, a_barcode);
-				else  m_cliente.print_type(cout, a_barcode);
+				if(my_case == direction::loja_venda or my_case == direction::loja_loja) m_loja.print_type(cout, "Salgado");
+				else  m_cliente.print_type(cout, "Salgado");
 				cout << endl << "--Fim--" << endl;
 			}
 		}
@@ -232,9 +235,9 @@ void sub_cadastro_loja(Cesta& target)
 	string new_item;
 
 	cout << "Insira o tipo de produto a ser cadastrado (Salgado ou CD). >>";
-		
 	cin >> new_item;
-	cin.ignore();	
+	cin.ignore();
+	cout << endl;
 
 	if(new_item == "CD")
 	{
@@ -267,8 +270,9 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 			<< "3) Ver Produtos cadastrados até agora na venda;" << endl
 			<< "4) Finalizar venda" << endl
 			<< "0) cancelar" << endl
-			<< "Digite o número da operação a ser realizada. >>" << endl;
+			<< "Digite o número da operação a ser realizada. >>";
 		op = set_number(0,4);	// Pega a operação
+		cout << endl;
 
 		// Operações
 

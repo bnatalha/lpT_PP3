@@ -342,8 +342,10 @@ void Cesta::load()
 	}
 	else // O arquivo não foi iniciado corretamente
 	{
-		cerr << "Erro ao tentar inicializar stream de entrada para " << filename << "." << endl;
-		exit(1);
+		//cerr << "Erro ao tentar inicializar stream de entrada para " << filename << "." << endl;
+		cout << "Erro ao tentar inicializar stream de entrada para " << filename << "." << endl
+			<< "Iniciando loja sem produtos cadastrados." << endl;
+		//exit(1);
 	}
 }
 

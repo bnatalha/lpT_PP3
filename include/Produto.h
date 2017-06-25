@@ -70,6 +70,8 @@ class Produto
 		void set_barcode( const string& x ) { barcode = x; } 	/**< Modifica o código de barras do produto (string) */
 		void set_quantity( const int& x ) { quantity = x; }	/**< Modifica a quantidade de produtos (unidade) existentes */
 
+		void change_product_specs();	/**< Modifica uma por uma as características do produto */
+
 		// Sobrecarga de operadores
 		float operator+ (const Produto &x);	/**< Retorna o resultado da adição do preço de dois produtos */
 		friend float operator+ (float y, const Produto &x);	/**< Retorna o resultado da adição de um float com o preço do produto */
@@ -223,6 +225,62 @@ bool Produto::operator>= ( const Produto &x){
 bool Produto::operator<= ( const Produto &x){
 	//return ((barcode < x.barcode) or (barcode == x.barcode));
 	return ((*this < x) or (*this == x));
+}
+
+// Auxiliares de alteração
+
+
+bool my_question(const char* question){
+	
+	char answer;
+	int counter = 0;
+	do
+	{
+		cout << question << " ('y' para sim e 'n' para não) >>";
+		cin >> answer;
+		cin.ignore();
+		if(counter++ > 0)cout << "Input inválido. Tente de novo. >>";
+	}
+	while( answer != 'y' and answer != 'n');
+	return ( answer == 'y');	// retorna true se a resposta for positiva;
+}
+
+void Produto::change_product_specs()
+{
+	string new_s;
+
+	cout << "Fornecedor atual: \""<< get_provider()<< "\".";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo fornecedor. >>" ;
+		cin >> new_s;
+		cin.ignore();
+		set_provider(new_s);
+		cout << endl;
+	}
+
+	cout << "Preço atual: $"<< get_price()<< ".";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo preço. >>" ;
+		cin >> new_s;	
+		cin.ignore();
+		set_price( std::stof(new_s) );
+	}
+
+	cout << "Código de barras atual: "<< get_barcode()<< ".";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo codigo de barras. >>" ;
+		cin >> new_s;	
+		cin.ignore();
+		set_barcode(new_s);
+	}
+
+	cout << "Quantidade atual: "<< get_quantity()<< ".";
+	if (my_question(" Deseja alterar?") ){
+	cout << "Insira nova quantidade. >>" ;
+		cin >> new_s;	
+		cin.ignore();
+		set_quantity( std::stoi(new_s) );
+	}
 }
 
 #include "Produto_tipos.h"

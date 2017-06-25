@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 
 	loja.load();	// Carregando produtos da loja do arquivo "data/my_store.csv"
 
-	cout << "Pronto. Total de Produto x unidades cadastrados: " << loja.size() << endl
+	cout << "Pronto. Total de unidades cadastradas: " << loja.size() << endl
 		<< "====================================================" << endl;
 
 	menu_principal(loja, cliente);	// Interação com o usuário

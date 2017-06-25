@@ -128,40 +128,34 @@ void CD::change()
 {
 	string new_s;
 
-	cout << "Insira novo fornecedor. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_provider(new_s);
-	cout << "Insira novo preço. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_price( stof(new_s) );
-	cout << "Insira novo codigo de barras. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_barcode(new_s);
-	cout << "Insira nova quantidade. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_quantity( stoi(new_s) );
+	change_product_specs();
 
 	// PROPRIOS DO PRODUTO
 
-	// NOME
-	cout << "Insira novo nome. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_name(new_s);	
+	// Nome
+	cout << "Título atual: \""<< get_name()<< "\".";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo título. >>" ;
+		cin >> new_s;	
+		cin.ignore();
+		set_name(new_s);
+	}
 	// Artista
-	cout << "Insira novo artista. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_artist(new_s);	
-	// estilo
-	cout << "Insira novo estilo. >>" ;
-	cin >> new_s;	
-	cin.ignore();
-	set_style(new_s);	
+	cout << "Artista atual: \""<< get_artist()<< "\".";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo artista. >>" ;
+		cin >> new_s;	
+		cin.ignore();
+		set_artist(new_s);
+	}
+	// Estilo
+	cout << "Estilo atual: \""<< get_style()<< "\".";	
+	if (my_question(" Deseja alterar?") ){
+		cout << "Insira novo estilo. >>" ;
+		cin >> new_s;	
+		cin.ignore();
+		set_style(new_s);
+	}
 }
 
 /**
