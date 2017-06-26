@@ -8,11 +8,10 @@
 */
 
 #include "header.h"
-#include "myLista.h"
 #include "Produto.h"
 #include "Produto_tipos.h"
 #include "Cesta.h"
-#include "test.h"
+//#include "test.h"
 
 
 /**
@@ -27,8 +26,13 @@ int main(int argc, char const *argv[])
 		<< 	"Carregando Cesta da loja...";
 
 	loja.load();	// Carregando produtos da loja do arquivo "data/my_store.csv"
+	//cout << loja.size() << endl;
 
-	cout << "Pronto. Total de unidades cadastradas: " << loja.size() << endl
+	//loja.print(cout);
+
+
+	cout << "Pronto. Total de Produtos cadastrados: " << loja.size() << endl
+		<< " Total de unidades disponíveis: " << loja.unities() << endl
 		<< "====================================================" << endl;
 
 	menu_principal(loja, cliente);	// Interação com o usuário
@@ -42,5 +46,6 @@ int main(int argc, char const *argv[])
 	cout << "Pronto." << endl;
 
 	cout << "Saindo. . ." << endl;
+
 	return 0;
 }

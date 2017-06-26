@@ -12,14 +12,24 @@
 
 #include "header.h"
 #include "Produto.h"
-#include "myLista.h"
-
 
 /**
 * @enum direction
 * @brief indica Domínio e contradomínio da função
 */
 enum direction {loja_loja = 0, loja_venda = 1, venda_loja, venda_venda };
+
+/**
+* @brief Imprime uma 'direction' (facilita a visualização)
+* @param out Referência para uma stream de saída
+*/
+void print_direction(direction& x , std::ostream& out)
+{
+	if(x == direction::loja_loja) out << "O : loja -> loja";
+	if(x == direction::loja_venda) out << "O : loja -> venda";
+	if(x == direction::venda_loja) out << "O : venda -> loja";
+	if(x == direction::venda_venda) out << "O : venda -> venda";
+}
 
 /**
 * @class Cesta
@@ -29,7 +39,7 @@ enum direction {loja_loja = 0, loja_venda = 1, venda_loja, venda_venda };
 class Cesta
 {
 	private:
-		myLista<Produto*> produtos;	/**< Lista de ponteiros para Produto */
+		map<string,Produto* > produtos;	/**< Onde são armazenados os produtos da loja */
 
 	public:
 
@@ -49,23 +59,25 @@ class Cesta
 		*/
 		~Cesta()
 		{
-			for (auto &e : produtos) if(e != NULL) delete e;	// Deleta todos os Produtos alocados na lista interna da Cesta
+			for (map<string,Produto* >::iterator it = produtos.begin() ; it != produtos.end(); it++)
+				if(it->second != NULL) delete it->second;	// Deleta todos os Produtos alocados no mapa interno da Cesta
 		}
 
 		// Métodos
 		// Getters
-		int size();	/**< Retorna a quantidade total de produtos (contando com as unidade) neste grupo */
+		int unities();	/**< Retorna a quantidade total de produtos (contando com as unidade) */
+		int size();	/**< Retorna a quantidade total de produtos cadastrados */
 		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
-		typename myLista<Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */
-		//int get_max_qnt( typename myLista<Produto*>::iterator& it );	
+		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */
+		//int get_max_qnt( typename map<string, Produto*>::iterator& it );	
 		// procurar por fornecedor (string)
 		
 		// Setters
 		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
-		void unreg( typename myLista<Produto*>::iterator& it ); /**< Descadastra um produto */
-		void change_qnt( typename myLista<Produto*>::iterator& it, const int x ); /**< Remove ou acrescenta uma quantidade de unidades de um certo produto cadastrado*/
-		void modify( Produto* prod );
-		void absorb_qnt(typename myLista<Produto*>::iterator it, const int x); /**<  Move um número de unidades do produto apontado por 'it' a Cesta que chamou está função. */
+		void unreg( typename map<string, Produto*>::iterator& it ); /**< Descadastra um produto */
+		//void modify( Produto* prod );
+		void absorb_qnt(typename map<string, Produto*>::iterator it, const int x); /**<  Move um número de unidades do produto apontado por 'it' a Cesta que chamou está função. */
+		void clear();	/**< Limpa o mapa interno, desalocando tudo e removendo os pares existentes */
 		
 		// Printers
 		void print( std::ostream& out );	/**< Imprime uma lista com todos os produtos do grupo */ 
@@ -81,12 +93,9 @@ class Cesta
 		Cesta& operator= (Cesta& direita);	/**< Atribui a lista de um grupo para este */
 		//friend &istream operator>> (istream &in, const Produto x);	/**< Sobrecarga do >> */
 
-
-		typedef typename myLista<Produto*>::iterator it_P;
-
 		// Friends
 		friend void menu_principal (Cesta& m_loja, Cesta& m_cliente);
-		friend void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_loja, Cesta& m_cliente, direction my_case );
+		friend void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta& m_loja, Cesta& m_cliente, direction my_case );
 		friend void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case );
 		friend void sub_cadastro_loja(Cesta& target);
 		friend void sub_venda(Cesta &m_loja, Cesta& m_cliente);
@@ -99,14 +108,19 @@ class Cesta
 // -------------------------------------------------
 // ----------------------------------------- Getters 
 
-int Cesta::size()
+int Cesta::unities()
 {
 	int sum = 0;	// Vai armazenar a soma total de unidades de todos os produtos do grupo
 
 	for( auto &e: produtos )
-		sum += e->get_quantity() ;	// Soma as quantidades
+		sum += e.second->get_quantity() ;	// Soma as quantidades
 
 	return sum;
+}
+
+int Cesta::size()
+{
+	return produtos.size();
 }
 
 
@@ -115,7 +129,7 @@ float Cesta::price()
 	float sum = 0;	// Vai armazenar a soma total de preços de todos os produtos do grupo
 
 	for( auto &e: produtos )
-		sum = sum + *e ;	// Soma os preços
+		sum = sum + *(e.second) ;	// Soma os preços
 
 	return sum;
 }
@@ -124,20 +138,12 @@ float Cesta::price()
 * @param m_barcode código de barras do Produto procurado
 * @return Interator pra localização do Produto procurado na lista. Se o iterator for igual ao fim da lista, o produto buscado não foi achado.
 */
-typename myLista<Produto*>::iterator Cesta::search( const string& m_barcode )
+typename map<string, Produto*>::iterator Cesta::search( const string& m_barcode )
 {
-	typename myLista<Produto*>::iterator it = produtos.begin();	// Cria um iterator pro inícia da 'produtos'
-	
-	for( ; it != produtos.end() ; it++ )
-		if( (*it)->get_barcode() == m_barcode ) break;	// encontrou*
+	typename map<string, Produto*>::iterator it = produtos.find(m_barcode);	// procura pelo codigo de barras em 'produtos'
 
 	return it;	// *se it == produtos.end(), não encontrou.
 }
-
-/**
-* @param it Iterator para o produto
-* @param x quantidade a ser acrescentada ou removida ( se for negativo)
-*/
 
 
 // -------------------------------------------------
@@ -149,13 +155,13 @@ typename myLista<Produto*>::iterator Cesta::search( const string& m_barcode )
 */
 void Cesta::reg( Produto* prod )
 {
-	typename myLista<Produto*>::iterator it = search(prod->get_barcode());	// Iterator para o produto
+	typename map<string, Produto*>::iterator it = search(prod->get_barcode());	// Iterator para o produto
 
 	if (it != produtos.end())	// Se o produto ja foi registrado
 		cout << " Produto ja tinha sido registrado." << endl;
 	else	// Se o produto ainda não foi registrado
 	{
-		produtos.push_back(prod);	// Regista o produto.
+		produtos.insert(std::pair<string, Produto*>(prod->get_barcode(),prod));	// Regista o produto.
 		cout << " Produto foi registrado.";
 	}
 }
@@ -163,57 +169,62 @@ void Cesta::reg( Produto* prod )
 /**
 * @param it Iterator para o produto
 */
-void Cesta::unreg( typename myLista<Produto*>::iterator& it )
+void Cesta::unreg( typename map<string, Produto*>::iterator& it )
 {
-	delete (*it);
-
-	produtos.remove( (*it) );
+	delete (*it).second;	// deleta o conteudo apontado pelo ponteiro para produto
+	produtos.erase(it);	// deleta o par do mapa;
 }
 
-void Cesta::change_qnt( typename myLista<Produto*>::iterator& it, const int x )
-{
-	(*it)->set_quantity( x );
-
-//	cout << "Nova quantidade: " << (*it).get_quantity() << endl;
-}
-
-void Cesta::modify( Produto* prod )
-{
-	prod->change();
-}
-
-void Cesta::absorb_qnt(typename myLista<Produto*>::iterator it, const int x)
+/**
+* @param it Iterator para o produto a ser alterado de uma outra Cesta
+* @param x inteiro constante com a quantidade de unidades do produto apontado por 'it' que será registrado nessa Cesta
+*/
+void Cesta::absorb_qnt(typename map<string, Produto*>::iterator it, const int x)
 {
 	bool found = false;	// Indica se a o produto apontado por 'it' foi encontrado na Cesta que chamou esta função
 
-	for(auto &e: produtos)	// Percorre a cesta que chamou a função
+	for(map<string, Produto*>::iterator aqui = produtos.begin();
+		aqui != produtos.end(); aqui++)	// Percorre a cesta que chamou a função
 	{
-		if (*e == *(*it))	// Se achar o produto que é igual ao apontado por 'it'
+		if (aqui->second->get_barcode() == it->second->get_barcode() )	// Se achar o produto que é igual ao apontado por 'it'
 		{
 			found = true;	// Achou produto na Cesta que chamou esta função
 
-			e->set_quantity( e->get_quantity() + x );	// Soma a quantidade disponivel na cesta com 'x'
-			(*it)->set_quantity( (*it)->get_quantity() - x );	// Subtrai unidades disponíveis de 'it' por 'x'
+			aqui->second->set_quantity( aqui->second->get_quantity() + x );	// Soma a quantidade disponivel na cesta com 'x'
+			(it->second)->set_quantity( (it->second)->get_quantity() - x );	// Subtrai unidades disponíveis de 'it' por 'x'
 			
+			cout << "Tit->second = " << it->second << " e aqui->second = " << aqui->second << endl;
 			break;	// Sai do loop
 		}
 	}
 
 	if( found == false )	// Se produto não era cadastrado na Cesta que chamou esta função
 	{
-		reg( (*it) );	// Registra o produto na cesta que chamou a função
-		
-		for(auto &e: produtos)	// Percorre a cesta que chamou a função
+		if(it->second->get_type() == "CD") reg( new CD(it->second) );	// Registra o produto na cesta que chamou a função
+		else if(it->second->get_type() == "Salgado") reg( new Salgado(it->second) );	// Registra o produto na cesta que chamou a função
+				
+		for(map<string, Produto*>::iterator aqui = produtos.begin();
+			aqui != produtos.end(); aqui++)	// Percorre a cesta que chamou a função
 		{
-			if (*e == *(*it))	// Se achar o produto que é igual ao apontado por 'it'
+			if (aqui->second->get_barcode() == it->second->get_barcode())	// Se achar o produto que é igual ao apontado por 'it'
 			{
-				e->set_quantity( e->get_quantity() + x );	// Soma a quantidade disponivel na cesta com 'x'
-				(*it)->set_quantity( (*it)->get_quantity() - x );	// Subtrai unidades disponíveis de 'it' por 'x'
+				aqui->second->set_quantity( x );	// Fixa a quantidade disponivel na cesta com 'x'
+				(it->second)->set_quantity( (it->second)->get_quantity() - x );	// Subtrai unidades disponíveis de 'it' por 'x'
+
+				cout << "Fit->second = " << it->second << " e aqui->second = " << aqui->second << endl;
 				
 				break;	// Sai do loop
 			}
 		}
 	}
+}
+
+void Cesta::clear()
+{
+	for (map<string,Produto* >::iterator it = produtos.begin() ; it != produtos.end(); it++)
+		if(it->second != NULL) delete it->second;	// Deleta todos os Produtos alocados no mapa interno da Cesta
+
+	produtos.clear();	// Remove todos os pares do mapa.
 }
 
 
@@ -232,7 +243,7 @@ void Cesta::print( std::ostream& out )
 	for (auto &e: produtos)
 	{
 		cout << "(" << i++ << "):";
-		e->print_it(out);
+		e.second->print_it(out);
 		cout << endl;
 	}
 	//out << "}" << endl;
@@ -249,10 +260,10 @@ void Cesta::print_type( std::ostream& out, const string& my_type )
 	//out << "LISTANDO '"<< my_type <<"': {" << endl;
 	for (auto &e: produtos)
 	{
-		if( e->get_type() == my_type)	// Se for o tipo que procuro
+		if( e.second->get_type() == my_type)	// Se for o tipo que procuro
 		{
 			cout << "(" << i++ << "):";
-			e->print_it(out);
+			e.second->print_it(out);
 			cout << endl;
 		}
 	}
@@ -305,7 +316,8 @@ void Cesta::load()
 	{
 		inData.seekg (0, inData.end);
 		int length = inData.tellg();	// Armazena a quantidade de caracteres no arquivo
-		inData.seekg (0, inData.beg);
+		inData.seekg (0, inData.beg);	// volta o ponteiro do buffer pro início
+
 
 		if(length >= 0)	// Se o arquivo não for vazio
 		{
@@ -318,16 +330,22 @@ void Cesta::load()
 
 				if (dummy_type == "CD")
 				{
-					new_cd = new CD;
+
+					try{
+						new_cd = new CD;
+					} catch (std::exception &e)	{
+						cerr << "[CAUGHT] Cesta::load(): " << e.what() << endl;
+					}
+
 					new_cd->load_csv_it(inData);	// Carrega o new_ com o conteudo de uma linha de inData
-					produtos.push_back(new_cd);	// Armazena o produto na lista de produtos diretamente
+					produtos.insert(std::pair<string, Produto*>(new_cd->get_barcode(),new_cd));	// Armazena o produto no mapa de produtos diretamente
 				}
 
 				if (dummy_type == "Salgado")
 				{
 					new_sa = new Salgado;
 					new_sa->load_csv_it(inData);	// Carrega o new_ com o conteudo de uma linha de inData
-					produtos.push_back(new_sa);	// Armazena o produto na lista de produtos diretamente
+					produtos.insert(std::pair<string, Produto*>(new_sa->get_barcode(),new_sa));	// Armazena o produto no mapa de produtos diretamente
 				}
 
 				dummy_type = "";	 //esvazia o dummy
@@ -364,7 +382,7 @@ void Cesta::save()
 	{
 		// Imprime os produtos de cada secção
 		for(auto &e: produtos)
-			e->save_csv_it(outData);
+			e.second->save_csv_it(outData);
 
 		// Fecha stream.
 		outData.close();
@@ -381,16 +399,17 @@ void Cesta::save()
 // ------------------------ Sobrecarga de operadores 
 
 /**
-* @param direita grupo a ser comparado
+* @param direita cesta a ser comparada
 */
 bool Cesta::operator== ( Cesta &direita)
 {
 	if(produtos.size() != direita.produtos.size() )	return false;	// Se os tamanhos das listas comparadas forem diferentes, retorna falso.
 
-	myLista<Produto*>::iterator esq;	// declara iterator que vai percorrer a Cesta que chamou esta função
+	//map<string, Produto*>::iterator esq;	// declara iterator que vai percorrer a Cesta que chamou esta função
 
-	// Se os tamanhos das listas comparadas forem iguais
-	for(myLista<Produto*>::iterator dir = direita.produtos.begin(); dir != direita.produtos.end(); dir++)
+	// Se os tamanhos dos mapas comparados forem iguais
+	/*for(map<string, Produto*>::iterator dir = direita.produtos.begin();
+		dir != direita.produtos.end(); dir++)
 	{
 		for(esq = produtos.begin(); esq != produtos.end(); esq++)
 		{
@@ -399,9 +418,13 @@ bool Cesta::operator== ( Cesta &direita)
 		}
 		if( esq == produtos.end())	// Se não encontrou um Produto de direita
 			return false;
-	}
-	
+	}*/
+	for(auto& e : produtos)
+		if (direita.search(e.second->get_barcode()) == direita.produtos.end() )	return false;	// se não achar o produto, retorna falso
+
 	return true;
+	
+	//return (produtos == direita.produtos);
 }
 
 /**
@@ -412,23 +435,26 @@ Cesta& Cesta::operator= (Cesta &direita)
 	if ( (*this == direita) == false)	// Se as Cestas não forem iguais
 	{
 		if( not(produtos.empty()) )	// Se a que chamou esta função não estiver vazia
-			for(auto &e : produtos) delete e;	// deletar seu conteudo
+			for(map<string, Produto*>::iterator esq = produtos.begin();
+				esq != produtos.end(); esq++) unreg(esq);	// destroi todos serus produtos
 
 		if( not(direita.produtos.empty()) )	// Se a lista da direita não estiver vazia
 		{
-			for(myLista<Produto*>::iterator dir = direita.produtos.begin();
+			for(map<string, Produto*>::iterator dir = direita.produtos.begin();
 				dir != direita.produtos.end(); dir++)
 			{
-				if( (*dir)->get_type() == "CD" )	// Se o item apontado na Cesta da direita for um CD
-					produtos.push_back( new CD((*dir)));
-				else if( (*dir)->get_type() == "Salgado" )	// Se o item apontado na Cesta da direita for um CD
-					produtos.push_back( new Salgado((*dir)));
+				if( (dir->second)->get_type() == "CD" )	// Se o item apontado na Cesta da direita for um CD
+					produtos.insert( std::pair<string,Produto*> ( dir->second->get_barcode(), (new CD((dir->second))) ) );
+				else if( dir->second->get_type() == "Salgado" )	// Se o item apontado na Cesta da direita for um CD
+					produtos.insert( std::pair<string,Produto*> ( dir->second->get_barcode(), (new Salgado((dir->second))) ) );
 
 				// Doce etc
 
 			}
 		}
 	}
+	
+	//*this
 
 	return *this;
 }

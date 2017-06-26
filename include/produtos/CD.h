@@ -136,24 +136,24 @@ void CD::change()
 	cout << "Título atual: \""<< get_name()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo título. >>" ;
-		cin >> new_s;	
-		cin.ignore();
+		getline(cin, new_s, '\n');	
+		//cin.ignore();
 		set_name(new_s);
 	}
 	// Artista
 	cout << "Artista atual: \""<< get_artist()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo artista. >>" ;
-		cin >> new_s;	
-		cin.ignore();
+		getline(cin, new_s,'\n');	
+		//cin.ignore();
 		set_artist(new_s);
 	}
 	// Estilo
 	cout << "Estilo atual: \""<< get_style()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo estilo. >>" ;
-		cin >> new_s;	
-		cin.ignore();
+		getline(cin, new_s,'\n');	
+		//cin.ignore();
 		set_style(new_s);
 	}
 }

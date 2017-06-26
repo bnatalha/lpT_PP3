@@ -41,10 +41,12 @@ int set_number(int smallest, int greatest)
 */
 void menu_principal (Cesta& m_loja, Cesta& m_cliente)
 {
-	int op;
+	int op;	//guarda a operação.
 
 	do{
-		cout << "Operações principais:" << endl
+		cout << "=============================" << endl
+			<< "Operações principais:" << endl
+			<< "=============================" << endl
 			<< "1) Consultar items na loja;" << endl
 			<< "2) Cadastrar items na loja;" << endl
 			<< "3) Iniciar Compra;" << endl
@@ -70,14 +72,16 @@ void menu_principal (Cesta& m_loja, Cesta& m_cliente)
 * @param aux Cesta que será consultado para movimentação de Produtos se necessário
 * @param my_case 'consulta' para consulta do Cesta da loja e 'venda' consulta do Cesta do cliente
 */
-void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_loja, Cesta& m_cliente, direction my_case )
+void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta& m_loja, Cesta& m_cliente, direction my_case )
 {
 	int op;	// Número da operação
 	string a_barcode;	// armazena código de barras
 
 	do
 	{
-		cout << "O que você deseja fazer com este "<< (*it)->get_type() <<":" << endl
+		print_direction(my_case,cout);
+		cout << endl
+			<< "O que você deseja fazer com este "<< (it->second)->get_type() <<":" << endl
 			<< "1) modificar;" << endl
 			<< "2) descadastrar;" << endl
 			<< "3) cadastrar;" << endl
@@ -91,13 +95,18 @@ void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_l
 
 		if(op == 1)	// 1) Modificar
 		{
-			(*it)->change();
+			if (my_case == direction::venda_venda or my_case == direction::loja_loja)
+				(it->second)->change();
+			else
+				cout << "Não pode descastrar esse produto por aqui." << endl;
 		}
 		else if(op == 2)	//2) Remover
 		{
 			if(my_case == direction::loja_loja)
 			{
 				m_loja.unreg(it);
+				cout << "Produto descadastrado." << endl;
+				op = 0;
 			}
 			else if(my_case == direction::loja_venda)
 			{
@@ -105,7 +114,9 @@ void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_l
 			}
 			else if(my_case == direction::venda_venda)
 			{
-				m_cliente.unreg(it);	
+				m_cliente.unreg(it);
+				cout << "Produto descadastrado." << endl;
+				op = 0;
 			}
 			else if(my_case == direction::venda_loja)
 			{
@@ -122,9 +133,10 @@ void sub_encontrou_produto( typename myLista<Produto*>::iterator& it, Cesta& m_l
 			{
 				int qtd;
 
-				cout << "Unidades disponiveis: " << (*it)->get_quantity() << ". Quantas serao cadastradas? >>";
-				qtd = set_number(0,(*it)->get_quantity());	// Pega a quantidade a ser movida
+				cout << "Unidades disponiveis: " << (it->second)->get_quantity() << ". Quantas serao cadastradas? >>";
+				qtd = set_number(0,(it->second)->get_quantity());	// Pega a quantidade a ser movida
 
+				cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 				m_cliente.absorb_qnt(it, qtd);	// Cadastra o item.
 			}
 			else if(my_case == direction::venda_venda)
@@ -153,7 +165,9 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 
 	do
 	{
-		cout << "Opções de consulta:" << endl
+		print_direction(my_case,cout);
+		cout << endl
+			<< "Opções de consulta:" << endl
 			<< "1) Consultar/alterar produto por código de barras;" << endl
 			<< "2) Listar produtos por tipo;" << endl
 			<< "0) voltar;" << endl
@@ -173,8 +187,8 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 			cout << "Procurando por '" << a_barcode << "'...";
 
 			// Criando iterators para pesquisar por produto.
-			myLista<Produto*>::iterator it;
-			myLista<Produto*>::iterator it_end;
+			map<string, Produto*>::iterator it;
+			map<string, Produto*>::iterator it_end;
 
 			// Procurando codigo de barras
 			if(my_case == direction::venda_venda)
@@ -193,9 +207,10 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 			if(it != it_end )	// Se encontrou
 			{
 				cout << "Encontrado." << endl;
-				(*it)->print_it(cout);
+				(it->second)->print_it(cout);
 				cout << endl;
 
+				cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 				sub_encontrou_produto(it, m_loja, m_cliente, my_case);
 			}			
 			else
@@ -210,14 +225,16 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 			if(op_2 == 1)	// CD
 			{
 				cout << "Imprimindo CDs:" << endl;
-				if(my_case == direction::loja_venda or my_case == direction::loja_loja) m_loja.print_type(cout, "CD");
+				if(my_case == direction::loja_venda or my_case == direction::loja_loja)
+					m_loja.print_type(cout, "CD");
 				else  m_cliente.print_type(cout, "CD");
 				cout << endl << "--Fim--" << endl;
 			}
 			else if(op_2 == 2)	// Salgado
 			{
 				cout << "Imprimindo Salgado:" << endl;
-				if(my_case == direction::loja_venda or my_case == direction::loja_loja) m_loja.print_type(cout, "Salgado");
+				if(my_case == direction::loja_venda or my_case == direction::loja_loja)
+					m_loja.print_type(cout, "Salgado");
 				else  m_cliente.print_type(cout, "Salgado");
 				cout << endl << "--Fim--" << endl;
 			}
@@ -232,24 +249,48 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 */
 void sub_cadastro_loja(Cesta& target)
 {
-	string new_item;
+	int new_item;
 
-	cout << "Insira o tipo de produto a ser cadastrado (Salgado ou CD). >>";
-	cin >> new_item;
-	cin.ignore();
-	cout << endl;
+	cout << "Insira '1' para cadastrar CD e '2' para Salgado. >>";
+	new_item = set_number(1,2);	// Pega número válido
 
-	if(new_item == "CD")
+	if(new_item == 1)	// Se for CD
 	{
-		CD *cd = new CD;
-		cd->change();
-		target.reg(cd);
+		CD *cd = new CD;	// Cria novo CD
+		cd->change();	// modifica o CD
+		map<string,Produto* >::iterator it = target.produtos.find(cd->get_barcode() );	// Busca se CD criado existe no mapa.
+		if( it == target.produtos.end())	// se não existe
+			target.reg(cd);	// registra o cd
+		else	// caso contrário
+		{
+			cout << "Produto encontrado:" << endl; it->second->print_it(cout);
+			cout << endl;
+			if (my_question("O produto que você está tentando cadastrar já existe. Deseja subistituí-lo? ") )
+			{	//se sim
+				target.unreg(it);
+				target.reg(cd);
+			}
+			else
+			{
+				delete cd;	// deleta CD que seria cadastrado
+				cout << "Cadastramento cancelado." << endl;
+			}
+			
+		}
 	}
-	else if(new_item == "Salgado")
+	else if(new_item == 2) //Se for Salgado
 	{
 		Salgado *sal = new Salgado;
 		sal->change();
 		target.reg(sal);
+		map<string,Produto* >::iterator it = target.produtos.find(sal->get_barcode() );	// Busca se Salgado criado existe no mapa.
+		if( it == target.produtos.end())	//se não existe
+			target.reg(sal);	// registra o cd
+		else
+		{
+			delete sal;	// deleta Salgado criado
+			cout << "Salgado já exite. Cadastramento cancelado." << endl;
+		}
 	}
 }
 
@@ -263,7 +304,7 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 	int op = 34;
 
 	do
-	{
+	{	cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 		cout << "Venda:" << endl
 			<< "1) Consultar items para adicionar a venda;" << endl
 			<< "2) Consultar/alterar items da venda;" << endl
@@ -284,27 +325,29 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 		{
 			sub_consulta(m_loja,m_cliente,direction::venda_venda);
 		}
-		else if(op == 3)	//4) Ver Produtos cadastrados até agora na venda;
+		else if(op == 3)	//3) Ver Produtos cadastrados até agora na venda;
 		{
 			m_cliente.print(cout);
 		}
-		else if(op == 5)	//5) Finalizar venda
+		else if(op == 4)	//5) Finalizar venda
 		{
+			cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 			m_cliente.print_notafiscal(cout);	// Imprime nota fiscal
-			m_cliente.~Cesta();	// Destro todos os items cadastrados na venda
+			m_cliente.clear();	//Limpa a Cesta cliente
 			cout << "Venda finalizada." << endl;
 		}
 		else if(op == 0)
 		{
-			for(myLista<Produto*>::iterator it = m_cliente.produtos.begin(); it != m_cliente.produtos.end(); it++)
-				m_loja.absorb_qnt(it, (*it)->get_quantity());	// Absorve todos as unidades apontados por 'it' para loja.
+			cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
+			for(map<string, Produto*>::iterator it = m_cliente.produtos.begin(); it != m_cliente.produtos.end(); it++)
+				m_loja.absorb_qnt(it, (it->second)->get_quantity());	// Absorve todos as unidades apontados por 'it' para loja.
 			
-			m_cliente.~Cesta();	// Destroi todos os items da Cesta do cliente.
+			m_cliente.clear();	//Limpa a Cesta cliente
 
-			cout << "Venda cancelada." << endl;
+			cout << "!! Venda cancelada !!" << endl << endl;
 		}
 
-	}while(op != 5 and op != 0);
+	}while(op != 4 and op != 0);
 }
 
 

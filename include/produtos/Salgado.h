@@ -131,7 +131,6 @@ void Salgado::save_csv_it(std::ofstream& out)
 void Salgado::change()
 {
 
-	string new_s;
 	float new_f;
 
 	// MUDANÇAS COMUNS DE PRODUTOS

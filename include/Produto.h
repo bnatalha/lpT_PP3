@@ -252,8 +252,8 @@ void Produto::change_product_specs()
 	cout << "Fornecedor atual: \""<< get_provider()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo fornecedor. >>" ;
-		cin >> new_s;
-		cin.ignore();
+		getline(cin, new_s,'\n');
+		//cin.ignore();
 		set_provider(new_s);
 		cout << endl;
 	}
@@ -261,24 +261,24 @@ void Produto::change_product_specs()
 	cout << "Preço atual: $"<< get_price()<< ".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo preço. >>" ;
-		cin >> new_s;	
-		cin.ignore();
+		getline(cin, new_s, '\n');	
+		//cin.ignore();
 		set_price( std::stof(new_s) );
 	}
 
 	cout << "Código de barras atual: "<< get_barcode()<< ".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo codigo de barras. >>" ;
-		cin >> new_s;	
-		cin.ignore();
+		getline(cin, new_s, '\n');	
+		//cin.ignore();
 		set_barcode(new_s);
 	}
 
 	cout << "Quantidade atual: "<< get_quantity()<< ".";
 	if (my_question(" Deseja alterar?") ){
 	cout << "Insira nova quantidade. >>" ;
-		cin >> new_s;	
-		cin.ignore();
+		getline(cin, new_s, '\n');	
+		//cin.ignore();
 		set_quantity( std::stoi(new_s) );
 	}
 }
