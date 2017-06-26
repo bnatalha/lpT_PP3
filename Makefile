@@ -24,7 +24,7 @@ INC3 =-I include/produtos
 
 # ================= ALL ==================
 # Creates everything that is needed in order to compile, compiles and then deletes the .o files
-all: init bin/QLT clean
+all: init bin/QLT
 
 # Creates the 'bin' folder at the current directory if there's no other folder with this name on it.
 init:
