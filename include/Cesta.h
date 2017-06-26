@@ -69,19 +69,19 @@ class Cesta
 		int size();	/**< Retorna a quantidade total de produtos cadastrados */
 		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
 		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */
-		//int get_max_qnt( typename map<string, Produto*>::iterator& it );	
+		Cesta* fetch_provider( const string& m_provider ); /**< Procura Por produtos cadastrados que tenham o mesmo fornecedor */
 		// procurar por fornecedor (string)
 		
 		// Setters
 		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
 		void unreg( typename map<string, Produto*>::iterator& it ); /**< Descadastra um produto */
-		//void modify( Produto* prod );
 		void absorb_qnt(typename map<string, Produto*>::iterator it, const int x); /**<  Move um número de unidades do produto apontado por 'it' a Cesta que chamou está função. */
 		void clear();	/**< Limpa o mapa interno, desalocando tudo e removendo os pares existentes */
 		
 		// Printers
 		void print( std::ostream& out );	/**< Imprime uma lista com todos os produtos do grupo */ 
 		void print_type( std::ostream& out, const string& my_type );	/**< Imprime produtos de um tipo */
+		void print_provider( std::ostream& out, const string& my_provider );	/**< Imprime produtos de um provedor */
 		void print_notafiscal(std::ostream& out); /**<  Imprime os Produtos no formato de um cupom fiscal da loja */ 
 		
 		// Manipulação de arquivos
@@ -145,6 +145,23 @@ typename map<string, Produto*>::iterator Cesta::search( const string& m_barcode 
 	return it;	// *se it == produtos.end(), não encontrou.
 }
 
+/**	// return Cesta; 
+* @param m_provider nome do fornecedor procurado
+* @return Objeto map<string, Produto*> com todos os produtos encontrados daquele fornecedor
+*/
+Cesta* Cesta::fetch_provider( const string& m_provider )
+{
+	Cesta * provedor = new Cesta;
+
+	for( map<string, Produto*>::iterator it = produtos.begin();
+		it != produtos.end(); it++)
+	{
+		if( it->second->get_provider() == m_provider ) provedor->reg( it->second );
+	}
+
+	return provedor;
+
+}
 
 // -------------------------------------------------
 // ----------------------------------------- Setters 
@@ -261,6 +278,23 @@ void Cesta::print_type( std::ostream& out, const string& my_type )
 	for (auto &e: produtos)
 	{
 		if( e.second->get_type() == my_type)	// Se for o tipo que procuro
+		{
+			cout << "(" << i++ << "):";
+			e.second->print_it(out);
+			cout << endl;
+		}
+	}
+	//out << "}" << endl;
+}
+
+void Cesta::print_provider( std::ostream& out, const string& my_provider )
+{
+	int i = 0;	// índice
+
+	//out << "LISTANDO '"<< my_type <<"': {" << endl;
+	for (auto &e: produtos)
+	{
+		if( e.second->get_provider() == my_provider)	// Se for o tipo que procuro
 		{
 			cout << "(" << i++ << "):";
 			e.second->print_it(out);
