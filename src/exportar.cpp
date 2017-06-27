@@ -8,6 +8,10 @@
 */
 
 #include "header.h"
+#include "Produto.h"
+#include "Produto_tipos.h"
+#include "Cesta.h"
+
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,6 +25,8 @@ void mostrar_ajuda(char *s);
 
 bool nao_eh_flag(char operacao, char* meu_argumento);
 bool valid_arg(char operacao, char* meu_argumento);
+
+void export_cesta();
 
 static int full_flag = 0;	//
 static int fornecerdor_flag = 0;	//
@@ -45,8 +51,6 @@ int main (int argc,char *argv[])
 {
 	char opt;
 
-	//int full_works;
-	
 	if(argc == 1)
 	{
 		cout << "Nenhum argumento passado." << endl;
@@ -119,7 +123,7 @@ int main (int argc,char *argv[])
 	}
 
 	// Programa de exportação será executado.
-	//exportar();
+	export_cesta();
 
 	cout << ">>>Saindo do programa..." << endl;
 	return 0;
@@ -202,5 +206,21 @@ bool valid_arg(char operacao, char* meu_argumento)
 // ============================================== Exportação ============================================
 // ======================================================================================================
 
-void exportar()
-{}
+void export_cesta()
+{
+	Cesta estoque;	
+	Cesta to_export;
+
+	estoque.load();
+
+	if(fornecerdor_flag and tipo_flag )
+		to_export.fetch_type_and_provider_from(estoque,meutipo,meufornecedor);
+	if(fornecerdor_flag and !tipo_flag )
+		to_export.fetch_from(estoque,meufornecedor);
+	if(!fornecerdor_flag and tipo_flag )
+		to_export.fetch_from(estoque,meutipo);
+	if(!fornecerdor_flag and !tipo_flag )
+		to_export.load();
+
+	to_export.export_csv(meuarquivo.c_str(), full_flag);
+}

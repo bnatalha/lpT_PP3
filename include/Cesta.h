@@ -69,13 +69,15 @@ class Cesta
 		int size();	/**< Retorna a quantidade total de produtos cadastrados */
 		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
 		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */				
+		bool is_valid_type( const string& str);
 
 		// Setters
 		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
 		void unreg( typename map<string, Produto*>::iterator& it ); /**< Descadastra um produto */
 		void absorb_qnt(typename map<string, Produto*>::iterator it, const int x); /**<  Move um número de unidades do produto apontado por 'it' a Cesta que chamou está função. */
 		void clear();	/**< Limpa o mapa interno, desalocando tudo e removendo os pares existentes */
-		void fetch_from( Cesta& orig, bool s_type, bool s_prov, const string& m_type, const string& m_provider);
+		void fetch_from( Cesta& orig, const string& m_search);
+		void fetch_type_and_provider_from( Cesta& orig, const string& m_type, const string& m_provider );
 		
 		// Printers
 		void print( std::ostream& out );	/**< Imprime uma lista com todos os produtos do grupo */ 
@@ -86,6 +88,7 @@ class Cesta
 		// Manipulação de arquivos
 		void save();	/**<  Salva os Produtos e listas desta Cesta em um arquivo .csv */ 
 		void load();	/**<  Carrega os Produtos e listas desta Cesta de um arquivo .csv */
+		void export_csv(const char* filename, int& print_full);
 
 		// Sobrecarga de operadores
 		bool operator== ( Cesta& direita);	/**< Compara um grupo com outro pra ver se são iguais (possuem a mesma lista de produtos)*/
@@ -143,36 +146,6 @@ typename map<string, Produto*>::iterator Cesta::search( const string& m_barcode 
 
 	return it;	// *se it == produtos.end(), não encontrou.
 }
-
-/**
-* @param m_provider nome do fornecedor procurado
-* @param orig Cesta onde os produtos do fornecedor 'm_provider' seram procurados
-*/
-/*
-void Cesta::fetch_provider_from( const string& m_provider, Cesta& orig  )
-{
-	for( map<string, Produto*>::iterator it = orig.produtos.begin();
-		it != orig.produtos.end(); it++)	//utilizando um iterator para a Cesta que está sendo vasculhada
-	{
-		if( it->second->get_provider() == m_provider )	// Se encontrou um produto do fornecedor requisitado
-		{			
-			if(produtos.count( it->second->get_barcode() ) == 0 ) // Caso ele não exista nesta Cesta
-			{	
-				if(it->second->get_type() == "CD")
-				{
-					CD *new_cd = new CD(it->second);
-					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_cd));	// O registra como CD.
-				}
-				if(it->second->get_type() == "Salgado")
-				{
-					Salgado *new_sal = new Salgado(it->second);
-					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_sal));	// O registra como Salgado.
-				}
-			}
-		}
-	}
-}
-*/
 
 
 
@@ -259,23 +232,47 @@ void Cesta::clear()
 
 /**
 * @param orig Cesta onde os produtos do tipo 'm_type' seram procurados
-* @param s_type diz se a busca levará em conta o tipo do produto
-* @param s_prov diz se a busca levará em conta o fornecedor do produto
-* @param m_type tipo do produto procurado
-* @param m_provider fornecedor procurado
+* @param m_search O que é procurado (fornecedor ou tipo).
 */
-void Cesta::fetch_from( Cesta& orig, bool s_type, bool s_prov, const string& m_type, const string& m_provider )
+void Cesta::fetch_from( Cesta& orig, const string& m_search )
 {
 	for( map<string, Produto*>::iterator it = orig.produtos.begin();
 		it != orig.produtos.end(); it++)	//utilizando um iterator para a Cesta que está sendo vasculhada
 	{
-		bool found_type = it->second->get_type() == m_type;
-		bool found_provider = it->second->get_provider() == m_provider;
+		bool searching_type = is_valid_type(m_search);
 
-		//if( (s_type and (it->second->get_type() == m_type) ) or 
-		//    (s_prov and (it->second->get_provider() == m_provider) ) )	// Se encontrou o produto
+		if( (searching_type and (it->second->get_type() == m_search) ) or 
+		    (!searching_type and (it->second->get_provider() == m_search) ) )	// Se encontrou o produto
+		{
+			if(produtos.count( it->second->get_barcode() ) == 0 ) // Caso ele não exista nesta Cesta
+			{	
+				if(it->second->get_type() == "CD")
+				{
+					CD *new_cd = new CD(it->second);
+					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_cd));	// O registra como CD.
+				}
+				if(it->second->get_type() == "Salgado")
+				{
+					Salgado *new_sal = new Salgado(it->second);
+					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_sal));	// O registra como Salgado.
+				}
+			}
+		}
+	}
+}
 
-		if( (s_type and found_type) or (s_prov and found_provider ) )	// Se encontrou o produto
+/**
+* @param orig Cesta onde os produtos do tipo 'm_type' seram procurados
+* @param m_provider fornecedor procurado
+* @param m_provider tipo procurado
+*/
+void Cesta::fetch_type_and_provider_from( Cesta& orig, const string& m_type, const string& m_provider )
+{
+	for( map<string, Produto*>::iterator it = orig.produtos.begin();
+		it != orig.produtos.end(); it++)	//utilizando um iterator para a Cesta que está sendo vasculhada
+	{
+		if( ( it->second->get_type() == m_type) and 
+		    (it->second->get_provider() == m_provider)  )	// Se encontrou o produto
 		{
 			if(produtos.count( it->second->get_barcode() ) == 0 ) // Caso ele não exista nesta Cesta
 			{	
@@ -478,6 +475,40 @@ void Cesta::save()
 	}
 }
 
+/**
+* @details Cada linha vai conter as seguintes informações sobre os produtos:
+* "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;<informações específicas de cada produto>
+*/
+void Cesta::export_csv(const char* filename, int& print_full)
+{
+	string outfile("data/"); /**< string com o nome do local do arquivo a ser salvo com os dados do baú */
+	outfile += filename;
+	outfile += ".csv";    
+
+	std::ofstream outData(outfile.c_str()); /**< stream de saída para 'filename' */
+
+	// Verifica se 'outData' abriu corretamente
+	if(outData.is_open())
+	{
+		// Imprime os produtos de cada secção
+		for(auto &e: produtos)
+		{
+			if(print_full) e.second->save_csv_it(outData);
+			else e.second->save_csv_P(outData);
+		}
+
+		// Fecha stream.
+		outData.close();
+
+		cout << "!Exportado para \"" << outfile << "\".";
+	}
+	else
+	{
+		cerr << "Erro ao tentar inicializar stream de saída para "<< outfile <<"." << endl;
+		exit(1);
+	}
+}
+
 
 // -------------------------------------------------
 // ------------------------ Sobrecarga de operadores 
@@ -541,6 +572,21 @@ Cesta& Cesta::operator= (Cesta &direita)
 	//*this
 
 	return *this;
+}
+
+// =====================================================================================================
+// =========================================== Função auxiliar =========================================
+// =====================================================================================================
+
+/**
+* @brief Verifica se uma string corresponde a o nome de um tipo de produto válido.
+* @param str Referência para string a ser verificada
+*/
+bool Cesta::is_valid_type( const string& str)
+{
+	if( str == "CD" or 
+		str == "Salgado") return true;
+	return false;
 }
 
 #include "Menu.h"

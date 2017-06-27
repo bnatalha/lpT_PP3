@@ -24,7 +24,7 @@ INC3 =-I include/produtos
 
 # ================= ALL ==================
 # Creates everything that is needed in order to compile, compiles and then deletes the .o files
-all: init bin/QLT
+all: init bin/QLT bin/exportar
 
 # Creates the 'bin' folder at the current directory if there's no other folder with this name on it.
 init:
@@ -47,9 +47,17 @@ val:
 bin/QLT: bin/main.o
 	g++ $^ -o $@
 
+# For exportar:
+bin/exportar: bin/exportar.o
+	g++ $^ -o $@
+
 # ================ OBJECTS ================
 # For QLT:
 bin/main.o: src/main.cpp
+	g++ $(CPPFLAGS) $< $(INC1) $(INC2) $(INC3) -c -o $@
+
+# For exportar:
+bin/exportar.o: src/exportar.cpp
 	g++ $(CPPFLAGS) $< $(INC1) $(INC2) $(INC3) -c -o $@
 
 # ================ CLEANER ================

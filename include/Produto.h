@@ -132,6 +132,7 @@ class Produto
 		virtual void print_it (std::ostream& out) const =0;	/**< Função virtual pura que define como vai ser a impressão das informações do produto */
 		virtual void save_csv_it (std::ofstream& out) =0;	/**< Função virtual pura que define como vai ser salva as informações dos produtos em um arquivo .csv */
 		virtual void load_csv_it (std::ifstream& in) =0;	/**< Função virtual pura que define como seram lidas as informações dos produtos de um arquivo .csv */
+		void save_csv_P (std::ofstream& out);
 		
 };
 
@@ -281,6 +282,20 @@ void Produto::change_product_specs()
 		//cin.ignore();
 		set_quantity( std::stoi(new_s) );
 	}
+}
+
+void Produto::save_csv_P(std::ofstream& out)
+{
+	out << '\"' << product_type << "\";"	//"tipo";
+		<< '\"' << provider << "\";"	//"fornecedor";
+		<< price << ";"	//preço;
+		<< '\"' << barcode << "\";"	//"codigo_de_baras";
+		<< quantity	//quantidade;
+		<< endl;
+
+	// Exemplo de impressão:
+	//"Salgado";"Salgarilhos";2;"000000133";5
+	//
 }
 
 #include "Produto_tipos.h"

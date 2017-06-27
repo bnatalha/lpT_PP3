@@ -11,7 +11,6 @@
 #include "Produto.h"
 #include "Produto_tipos.h"
 #include "Cesta.h"
-//#include "test.h"
 
 
 /**
@@ -24,20 +23,12 @@ int main(int argc, char const *argv[])
 	Cesta cliente;	/**< Produtos que o cliente deseja comprar da loja */
 
 	loja.load();
-	cliente.fetch_from(loja,true,false,"Salgado","");
 
-	cliente.print(cout);
-
-/*
 	cout << "Bem vindo ao sistema de admnistração de produtos da QLeveTudo." << endl
 		<< 	"Carregando Cesta da loja...";
 
 	loja.load();	// Carregando produtos da loja do arquivo "data/my_store.csv"
-	//cout << loja.size() << endl;
-
-	//loja.print(cout);
-
-
+	
 	cout << "Pronto. Total de Produtos cadastrados: " << loja.size() << endl
 		<< " Total de unidades disponíveis: " << loja.unities() << endl
 		<< "====================================================" << endl;
@@ -51,7 +42,7 @@ int main(int argc, char const *argv[])
 	loja.save();	// Salva os produtos do Cesta da loja em "data/my_store.csv" (sobrescreve)
 
 	cout << "Pronto." << endl;
-*/
+
 	cout << "Saindo. . ." << endl;
 
 	return 0;
