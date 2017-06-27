@@ -68,15 +68,14 @@ class Cesta
 		int unities();	/**< Retorna a quantidade total de produtos (contando com as unidade) */
 		int size();	/**< Retorna a quantidade total de produtos cadastrados */
 		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
-		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */
-		Cesta* fetch_provider( const string& m_provider ); /**< Procura Por produtos cadastrados que tenham o mesmo fornecedor */
-		// procurar por fornecedor (string)
-		
+		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */				
+
 		// Setters
 		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
 		void unreg( typename map<string, Produto*>::iterator& it ); /**< Descadastra um produto */
 		void absorb_qnt(typename map<string, Produto*>::iterator it, const int x); /**<  Move um número de unidades do produto apontado por 'it' a Cesta que chamou está função. */
 		void clear();	/**< Limpa o mapa interno, desalocando tudo e removendo os pares existentes */
+		void fetch_from( Cesta& orig, bool s_type, bool s_prov, const string& m_type, const string& m_provider);
 		
 		// Printers
 		void print( std::ostream& out );	/**< Imprime uma lista com todos os produtos do grupo */ 
@@ -145,23 +144,37 @@ typename map<string, Produto*>::iterator Cesta::search( const string& m_barcode 
 	return it;	// *se it == produtos.end(), não encontrou.
 }
 
-/**	// return Cesta; 
+/**
 * @param m_provider nome do fornecedor procurado
-* @return Objeto map<string, Produto*> com todos os produtos encontrados daquele fornecedor
+* @param orig Cesta onde os produtos do fornecedor 'm_provider' seram procurados
 */
-Cesta* Cesta::fetch_provider( const string& m_provider )
+/*
+void Cesta::fetch_provider_from( const string& m_provider, Cesta& orig  )
 {
-	Cesta * provedor = new Cesta;
-
-	for( map<string, Produto*>::iterator it = produtos.begin();
-		it != produtos.end(); it++)
+	for( map<string, Produto*>::iterator it = orig.produtos.begin();
+		it != orig.produtos.end(); it++)	//utilizando um iterator para a Cesta que está sendo vasculhada
 	{
-		if( it->second->get_provider() == m_provider ) provedor->reg( it->second );
+		if( it->second->get_provider() == m_provider )	// Se encontrou um produto do fornecedor requisitado
+		{			
+			if(produtos.count( it->second->get_barcode() ) == 0 ) // Caso ele não exista nesta Cesta
+			{	
+				if(it->second->get_type() == "CD")
+				{
+					CD *new_cd = new CD(it->second);
+					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_cd));	// O registra como CD.
+				}
+				if(it->second->get_type() == "Salgado")
+				{
+					Salgado *new_sal = new Salgado(it->second);
+					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_sal));	// O registra como Salgado.
+				}
+			}
+		}
 	}
-
-	return provedor;
-
 }
+*/
+
+
 
 // -------------------------------------------------
 // ----------------------------------------- Setters 
@@ -242,6 +255,43 @@ void Cesta::clear()
 		if(it->second != NULL) delete it->second;	// Deleta todos os Produtos alocados no mapa interno da Cesta
 
 	produtos.clear();	// Remove todos os pares do mapa.
+}
+
+/**
+* @param orig Cesta onde os produtos do tipo 'm_type' seram procurados
+* @param s_type diz se a busca levará em conta o tipo do produto
+* @param s_prov diz se a busca levará em conta o fornecedor do produto
+* @param m_type tipo do produto procurado
+* @param m_provider fornecedor procurado
+*/
+void Cesta::fetch_from( Cesta& orig, bool s_type, bool s_prov, const string& m_type, const string& m_provider )
+{
+	for( map<string, Produto*>::iterator it = orig.produtos.begin();
+		it != orig.produtos.end(); it++)	//utilizando um iterator para a Cesta que está sendo vasculhada
+	{
+		bool found_type = it->second->get_type() == m_type;
+		bool found_provider = it->second->get_provider() == m_provider;
+
+		//if( (s_type and (it->second->get_type() == m_type) ) or 
+		//    (s_prov and (it->second->get_provider() == m_provider) ) )	// Se encontrou o produto
+
+		if( (s_type and found_type) or (s_prov and found_provider ) )	// Se encontrou o produto
+		{
+			if(produtos.count( it->second->get_barcode() ) == 0 ) // Caso ele não exista nesta Cesta
+			{	
+				if(it->second->get_type() == "CD")
+				{
+					CD *new_cd = new CD(it->second);
+					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_cd));	// O registra como CD.
+				}
+				if(it->second->get_type() == "Salgado")
+				{
+					Salgado *new_sal = new Salgado(it->second);
+					produtos.insert(std::pair<string, Produto*>(it->second->get_barcode(),new_sal));	// O registra como Salgado.
+				}
+			}
+		}
+	}
 }
 
 

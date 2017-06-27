@@ -21,12 +21,13 @@ int main(int argc, char const *argv[])
 {
 
 	Cesta loja;	/**< Produtos da loja */
-	Cesta *cliente;	/**< Produtos que o cliente deseja comprar da loja */
+	Cesta cliente;	/**< Produtos que o cliente deseja comprar da loja */
 
 	loja.load();
-	cliente = loja.fetch_provider("Bombom Produções");
+	cliente.fetch_from(loja,true,false,"Salgado","");
 
-	cliente->print(cout);
+	cliente.print(cout);
+
 /*
 	cout << "Bem vindo ao sistema de admnistração de produtos da QLeveTudo." << endl
 		<< 	"Carregando Cesta da loja...";

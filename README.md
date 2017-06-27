@@ -1,4 +1,4 @@
-## Projeto de Programação 2
+## Projeto de Programação 3
 ###### por [Natália Azevedo de Brito](https://github.com/bnatalha)
 
 O programa gerado irá ajudar an admnistração dos produtos da loja QLeveTudo, sendo capaz e realizar as seguintes tarefas:
