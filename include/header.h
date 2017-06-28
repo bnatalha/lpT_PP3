@@ -21,6 +21,8 @@ using std::cerr;
 #include <string>	
 using std::string;
 
+#include <string.h>	// para strcmp()
+
 #include <ostream>
 using std::ostream;
 
@@ -30,5 +32,8 @@ using std::ifstream;
 
 #include <map>
 using std::map;
+
+#include <cctype>       // std::isdigit
+#include <algorithm>       // std::count
 
 #endif

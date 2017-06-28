@@ -5,10 +5,6 @@
 #include "Produto.h"
 #include "Cesta.h"
 
-// Funções que auxiliam o menu
-
-//int set_number(int beginning, int end);
-
 // =================================================================================
 // ================================= IMPLEMENTAÇÃO ================================= 
 
@@ -18,20 +14,19 @@
 * @param greatest maior número permitido
 * @return operação válida (dentro do intervalo [fechado) passado)
 */
-int set_number(int smallest, int greatest)
+int set_valid_number(int smallest, int greatest)
 {
-	int number;
+	int number;	//armazena o numero que será retornado
+	string answer;	//armazena o que foi passado pelo usuário
+	int counter = 0;	//conta as vezes que o loop já se repetiu
 
-	cin >> number;
-	cin.ignore();
-
-	while (number < smallest or greatest < number )
+	do
 	{
-		cout << "Digite um número válido. >>";
-		cin >> number;
-		cin.ignore();
-	}
-	return number;
+		if(counter++ > 0)cout << "Digite um número válido. >>";
+		getline(cin,answer,'\n');	//guarda input
+		try{number = stoi(answer);}catch(std::exception& e){number = greatest+1;}	//tenta converter input para inteiro
+	}while (number < smallest or greatest < number );	// enquanto não conseguir um inteiro dentro deste intervalo
+	return number;	//retorna inteiro
 }
 
 /**
@@ -53,7 +48,7 @@ void menu_principal (Cesta& m_loja, Cesta& m_cliente)
 			<< "0) Finalizar o programa;" << endl
 			<< "Digite o número da operação a ser realizada. >>";
 		
-		op = set_number(0,3);	// Solicita do usuário a operação
+		op = set_valid_number(0,3);	// Solicita do usuário a operação
 		cout << endl;
 
 		if( op == 1) //1) Consultar items na loja;
@@ -88,17 +83,19 @@ void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta&
 			<< "0) nada;" << endl
 			<< "Digite o número da operação a ser realizada. >>";
 		
-		op = set_number(0,3);
+		op = set_valid_number(0,3);
 		cout << endl;
 
 		// operações
 
 		if(op == 1)	// 1) Modificar
 		{
-			if (my_case == direction::venda_venda or my_case == direction::loja_loja)
-				(it->second)->change();
+			if (my_case == direction::loja_loja)
+				if(sub_modificar(it,m_loja)) op = 0;	// se houve mudança de código de barras
+			if (my_case == direction::venda_venda)
+				cout << "Não pode modificar um produto que ja foi cadastrado para ser vendido. Tente cadastrá-lo novamente." << endl;
 			else
-				cout << "Não pode descastrar esse produto por aqui." << endl;
+				cout << "Não pode modificar este produto por aqui." << endl;
 		}
 		else if(op == 2)	//2) Remover
 		{
@@ -134,9 +131,9 @@ void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta&
 				int qtd;
 
 				cout << "Unidades disponiveis: " << (it->second)->get_quantity() << ". Quantas serao cadastradas? >>";
-				qtd = set_number(0,(it->second)->get_quantity());	// Pega a quantidade a ser movida
+				qtd = set_valid_number(0,(it->second)->get_quantity());	// Pega a quantidade a ser movida
 
-				cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
+				//cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 				m_cliente.absorb_qnt(it, qtd);	// Cadastra o item.
 			}
 			else if(my_case == direction::venda_venda)
@@ -173,7 +170,7 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 			<< "0) voltar;" << endl
 			<< "Digite o número da operação a ser realizada. >>";
 	
-		op = set_number(0,2);	// Pega número válido
+		op = set_valid_number(0,2);	// Pega número válido
 		cout << endl;
 
 		// operações
@@ -220,7 +217,7 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 		if(op == 2)	//2) Listar produtos por tipo;
 		{
 			cout << "Insira '1' para CD e '2' para Salgado. >>";
-			op_2 = set_number(1,2);	// Pega número válido
+			op_2 = set_valid_number(1,2);	// Pega número válido
 
 			if(op_2 == 1)	// CD
 			{
@@ -252,46 +249,100 @@ void sub_cadastro_loja(Cesta& target)
 	int new_item;
 
 	cout << "Insira '1' para cadastrar CD e '2' para Salgado. >>";
-	new_item = set_number(1,2);	// Pega número válido
+	new_item = set_valid_number(1,2);	// Pega número válido
 
-	if(new_item == 1)	// Se for CD
-	{
-		CD *cd = new CD;	// Cria novo CD
-		cd->change();	// modifica o CD
-		map<string,Produto* >::iterator it = target.produtos.find(cd->get_barcode() );	// Busca se CD criado existe no mapa.
-		if( it == target.produtos.end())	// se não existe
-			target.reg(cd);	// registra o cd
-		else	// caso contrário
+	try{
+		if(new_item == 1)	// Se for CD
 		{
-			cout << "Produto encontrado:" << endl; it->second->print_it(cout);
+			CD *cd = new CD;	// Cria novo CD
+			cd->change();	// modifica o CD
+			map<string,Produto* >::iterator it = target.produtos.find(cd->get_barcode() );	// Busca se CD criado existe no mapa.
+			if( it == target.produtos.end())	// se não existe
+				target.reg(cd);	// registra o cd
+			else	// caso contrário
+			{// vê com qual produto o qliente vai ficar
+				cout << "Produto encontrado:" << endl; it->second->print_it(cout);
+				cout << endl;
+				if (my_question("O produto que você está tentando cadastrar já existe. Deseja subistituí-lo? ") )
+				{	//deleta CD antigo e registra o novo
+					target.unreg(it);
+					target.reg(cd);
+				}
+				else
+				{
+					delete cd;	// deleta CD que seria cadastrado
+					cout << "Cadastramento cancelado." << endl;
+				}			
+			}
+		}
+		else if(new_item == 2) //Se for Salgado
+		{
+			Salgado *sal = new Salgado;
+			sal->change();
+			map<string,Produto* >::iterator it = target.produtos.find(sal->get_barcode() );	// Busca se Salgado criado existe no mapa.
+			if( it == target.produtos.end())	//se não existe
+				target.reg(sal);	// registra o sal
+			else
+			{// vê com qual produto o qliente vai ficar
+				cout << "Produto encontrado:" << endl; it->second->print_it(cout);
+				cout << endl;
+				if (my_question("O produto que você está tentando cadastrar já existe. Deseja subistituí-lo? ") )
+				{	// deleta Salgado antigo e registra o novo
+					target.unreg(it);
+					target.reg(sal);
+				}
+				else
+				{
+					delete sal;	// deleta Salgado que seria cadastrado
+					cout << "Cadastramento cancelado." << endl;
+				}			
+			}
+		}
+	}catch (std::bad_alloc &e) {cerr << "[CAUGHT] sub_cadastro_loja=: " << e.what() << endl;}
+}
+
+/**
+* @brief Menu de opções de Cadastro de Item na loja
+* @param alvo Cesta onde o iterm será cadastrado
+* @return true se alterou o código de barras de algum produto
+*/
+bool sub_modificar(typename map<string, Produto*>::iterator& it, Cesta& target )
+{
+	bool changed_barcode = false;
+	
+	changed_barcode =  it->second->change();	// modifica o CD (retorna true se tiver mudado o código de barras)
+	
+	if( changed_barcode )
+	{
+		cout << "Código de barras alterado. ";
+
+		map<string,Produto* >::iterator searched = target.produtos.find(it->second->get_barcode() );	// Busca se código de barras já existe na Cesta.
+		if( searched == target.produtos.end())	// se não existe
+		{
+			cout << "Recadastrando..." << endl;
+			target.reg(it->second); //registra o produto modificado com seu novo codigo de barras
+			target.produtos.erase(it);	// apaga o registro/par antigo do produto
+
+		}
+		else	// se já existe um par com sua chave igual ao novo codigo de barras do produto
+		{// vê com qual produto o usuário vai ficar
+			cout << "Produto com o mesmo código de barras encontrado:" << endl; searched->second->print_it(cout);
 			cout << endl;
-			if (my_question("O produto que você está tentando cadastrar já existe. Deseja subistituí-lo? ") )
-			{	//se sim
-				target.unreg(it);
-				target.reg(cd);
+			if (my_question("O produto/código de barras que você está tentando cadastrar já existe. Deseja subistituí-lo? Caso não queira, o produto modificado terá seu código de barras revertido.") )
+			{	//deleta CD antigo e registra o novo
+				target.unreg(searched);	//descadastra o produto que será substituido
+				target.reg(it->second); //registra o produto modificado com seu novo codigo de barras
+				target.produtos.erase(it);	// apaga o registro/par antigo
 			}
 			else
 			{
-				delete cd;	// deleta CD que seria cadastrado
-				cout << "Cadastramento cancelado." << endl;
-			}
-			
+				cout << "Revertendo o Código de barras." << endl;
+				it->second->set_barcode(it->first);	// Reverte o código de barras para o valor da chave
+				changed_barcode	= false;
+			}			
 		}
 	}
-	else if(new_item == 2) //Se for Salgado
-	{
-		Salgado *sal = new Salgado;
-		sal->change();
-		target.reg(sal);
-		map<string,Produto* >::iterator it = target.produtos.find(sal->get_barcode() );	// Busca se Salgado criado existe no mapa.
-		if( it == target.produtos.end())	//se não existe
-			target.reg(sal);	// registra o cd
-		else
-		{
-			delete sal;	// deleta Salgado criado
-			cout << "Salgado já exite. Cadastramento cancelado." << endl;
-		}
-	}
+	return changed_barcode;
 }
 
 
@@ -312,7 +363,7 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 			<< "4) Finalizar venda" << endl
 			<< "0) cancelar" << endl
 			<< "Digite o número da operação a ser realizada. >>";
-		op = set_number(0,4);	// Pega a operação
+		op = set_valid_number(0,4);	// Pega a operação
 		cout << endl;
 
 		// Operações

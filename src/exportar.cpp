@@ -12,9 +12,10 @@
 #include "Produto_tipos.h"
 #include "Cesta.h"
 
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
+//#include <unistd.h>
+//#include <cstring>	//para strcmp()
+//#include <cstring.h>
+//#include <cstdlib.h>
 #include <getopt.h>
 
 // objetivo :

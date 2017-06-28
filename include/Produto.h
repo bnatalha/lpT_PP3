@@ -18,7 +18,6 @@
 */
 class Produto
 {
-	//friend class Bau;
 
 	protected:
 		string product_type;	/**< Tipo de produto (bebida, cd,etc) */
@@ -69,7 +68,7 @@ class Produto
 		void set_price( const float& x ) { price = x; }	/**< Modifica preço do produto (float) */
 		void set_barcode( const string& x ) { barcode = x; } 	/**< Modifica o código de barras do produto (string) */
 		void set_quantity( const int& x ) { quantity = x; }	/**< Modifica a quantidade de produtos (unidade) existentes */
-		void change_product_specs();	/**< Modifica uma por uma as características do produto */
+		bool change_product_specs();	/**< Modifica uma por uma as características do produto */
 
 		// Sobrecarga de operadores
 		float operator+ (const Produto &x);	/**< Retorna o resultado da adição do preço de dois produtos */
@@ -125,7 +124,7 @@ class Produto
 		virtual void set_publisher(const string &x) {}	/**< Altera a editora do livro (string) */
 		virtual void set_year(const int &x) {} /**< Altera o ano de publicação do livro (int) */
 
-		virtual void change() =0;
+		virtual bool change() =0;
 		
 		// auxiliar da sobrecarga de extração
 		virtual void print_it (std::ostream& out) const =0;	/**< Função virtual pura que define como vai ser a impressão das informações do produto */
@@ -237,29 +236,36 @@ bool Produto::operator<= ( const Produto &x){
 * @retval false O usuário respondeu "não" ('n')
 */
 bool my_question(const char* question){
+	string my_prompt(" ('y' para sim e 'n' para não) >>");	// orientação ao usuário
+	char answer[30];	// armazena a resposta do usuário
+		
+	cout << question << my_prompt;	// mostra a orientação ao usuário;
 	
-	char answer;	// armazena a resposta do usuário
-	int counter = 0;	// conta quantas vezes o usuário já respondeu a pergunta
 	do //enquanto o usuário não responde com 'n' ou 'y'
 	{
-		cout << question << " ('y' para sim e 'n' para não) >>";
-		cin >> answer;
-		cin.ignore();
-		if(counter++ > 0)cout << "Input inválido. Tente de novo. >>";
+		cin.getline(answer,30);	//pega a resposta
+		
+		// se pegar falhar a entrada, ou cin.getline tiver extraido mais que dois caracteres ou não for y ou n
+		try{if(cin.fail() or cin.gcount()>2 or (strcmp(answer,"y")!=0 and strcmp(answer,"n")!=0) )
+			throw std::invalid_argument("Input inválido.");	//Joga uma exceção de entrada inválida
+		}catch(std::exception &e){
+			cout << e.what() << my_prompt;
+		}
 	}
-	while( answer != 'y' and answer != 'n');
-	return ( answer == 'y');	// retorna true se a resposta for "sim"
+	while( (strcmp(answer,"y") !=0 and strcmp(answer,"n")!=0 ) );
+	return ( strcmp(answer,"y") == 0 );	// retorna true se a resposta for "sim"
 }
 
-void Produto::change_product_specs()
+bool Produto::change_product_specs()
 {
+	bool barcode_changed = false;
+
 	string new_s;	//string que armazena o dado que o usuário irá passar
 
 	cout << "Fornecedor atual: \""<< get_provider()<< "\".";	// Mostra o fornecedor atual do produto
 	if (my_question(" Deseja alterar?") ){	// Pergunta ao usuário se ele deseja trocar o fornecedor do produto
 		cout << "Insira novo fornecedor. >>" ;
 		getline(cin, new_s,'\n');
-		//cin.ignore();
 		set_provider(new_s);
 		cout << endl;
 	}
@@ -267,26 +273,34 @@ void Produto::change_product_specs()
 	cout << "Preço atual: $"<< get_price()<< ".";	
 	if (my_question(" Deseja alterar?") ){ // Pergunta ao usuário se ele deseja trocar o preço do produto
 		cout << "Insira novo preço. >>" ;
-		getline(cin, new_s, '\n');	
-		//cin.ignore();
-		set_price( std::stof(new_s) );
+		getline(cin, new_s,'\n');
+		try{set_price( std::stof(new_s) );
+		}catch (std::exception &e){
+			cout << "Preço inválido. Setando em $1.99 ."<< endl;
+			set_price(1.99);
+		}
 	}
 
 	cout << "Código de barras atual: "<< get_barcode()<< ".";	
 	if (my_question(" Deseja alterar?") ){ // Pergunta ao usuário se ele deseja trocar o código de barras do produto
 		cout << "Insira novo codigo de barras. >>" ;
-		getline(cin, new_s, '\n');	
-		//cin.ignore();
+		getline(cin, new_s, '\n');
+		if(new_s != get_barcode())	
 		set_barcode(new_s);
 	}
 
 	cout << "Quantidade atual: "<< get_quantity()<< ".";
 	if (my_question(" Deseja alterar?") ){ // Pergunta ao usuário se ele deseja trocar a quantidade do produto
-	cout << "Insira nova quantidade. >>" ;
-		getline(cin, new_s, '\n');	
-		//cin.ignore();
-		set_quantity( std::stoi(new_s) );
+		cout << "Insira nova quantidade. >>" ;
+		getline(cin, new_s,'\n');
+		try{set_quantity( std::stoi(new_s) );
+		}catch (std::exception &e){
+			cout << "Quantidade inválida. Setando em 1 ."<< endl;
+			set_quantity(1);
+		}
 	}
+
+	return barcode_changed;
 }
 
 void Produto::save_csv_P(std::ofstream& out)

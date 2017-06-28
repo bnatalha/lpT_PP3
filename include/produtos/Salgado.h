@@ -78,7 +78,7 @@ class Salgado : public Produto
 		void set_sodium(const float &x) { sodium = x; }	/**< Altera a taxa de açucar (em mg) do produto */
 		void set_gluten(const bool &x) { gluten = x; }	/**< Altera o atributo que diz se o produto contém glúten ou não */
 		void set_lactose(const bool &x) { lactose = x; }	/**< Altera o atributo que diz se o produto contém lactose ou não */
-		void change(); /**< Altera tudo do Salgado */
+		bool change(); /**< Altera tudo do Salgado */
 
 		// auxiliar da sobrecarga de extração
 		void print_it (std::ostream& out) const;	/**< Função que define como vai ser a impressão do produto */
@@ -128,24 +128,25 @@ void Salgado::save_csv_it(std::ofstream& out)
 	
 }
 
-void Salgado::change()
+bool Salgado::change()
 {
-
-	float new_f;
+	string new_s;
 
 	// MUDANÇAS COMUNS DE PRODUTOS
-	change_product_specs();
+	bool barcode_changed = change_product_specs();
 
-	// PROPRIOS DO PRODUTO
+	// PROPRIAS DESTE TIPO
 
 	// SODIO
 	cout << "Taxa de sódio atual: "<< get_sodium()<< "mg.";	
 	if (my_question(" Deseja alterar?") ){
-		cout << "Insira novo sódio. >>" ;
-		cin >> new_f;	// Armazena o novo sódio em 'new_'
-		cin.ignore();
-		set_sodium(new_f);	// Modifica o sódio para o conteudo de 'new_'
-	//	cout << "sódio: \"" << get_sodium() << "\"" << endl;
+		cout << "Insira novo valor. >>" ;
+		getline(cin, new_s,'\n');
+		try{set_sodium( std::stof(new_s) );	// Tenta mudar o valor do sódio
+		}catch (std::exception &e){
+			cout << "Valor inválido inválido. Setando para 5mg.";
+			set_sodium(5);
+		}
 	}
 
 	// GLUTEN
@@ -155,6 +156,8 @@ void Salgado::change()
 	//LACTOSE
 	cout << "Lactose atual:  \"" << (get_lactose()?"":"NÃO ") << "contém\".";
 	if ( my_question(" Deseja alterar?") ) set_lactose( !get_lactose() );
+
+	return barcode_changed;
 }
 
 /**

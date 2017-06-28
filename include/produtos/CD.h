@@ -4,7 +4,6 @@
 /**
 * @file
 * @brief Implementação de um CD (derivado da classe Produto)
-* @author Michel Jean Katsilis (https://github.com/MJK2)
 * @author Natália Azevedo de Brito (https://github.com/bnatalha)
 * @since 04/06/2017
 * @date --
@@ -75,7 +74,7 @@ class CD : public Produto
 		void set_name(const string &x) { name = x; }	/**< Altera título do CD (string) */
 		void set_artist(const string &x) { artist = x; }	/**< Altera artista do CD (string) */
 		void set_style(const string &x) { style = x; }	/**< Altera o estilo do CD (string) */
-		void change(); /**< Altera tudo do CD */
+		bool change(); /**< Altera tudo do CD */
 
 		// auxiliar da sobrecarga de extração
 		void print_it (std::ostream& out) const;	/**< Função que define como vai ser a impressão do produto */
@@ -123,39 +122,41 @@ void CD::save_csv_it(std::ofstream& out)
 	//"CD";"Sony Music";9.4;"000000123";2;"Album A";"Artistino";"Forró"
 }
 
-
-void CD::change()
+/**
+* @retrun true se tiver alterado o codigo de barras. false caso contrário.
+*/
+bool CD::change()
 {
 	string new_s;
 
-	change_product_specs();
+	// MUDANÇAS COMUNS DE PRODUTOS
+	bool barcode_changed = change_product_specs();
 
-	// PROPRIOS DO PRODUTO
+	// PROPRIOS DESTE TIPO DE PRODUTO
 
 	// Nome
 	cout << "Título atual: \""<< get_name()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo título. >>" ;
 		getline(cin, new_s, '\n');	
-		//cin.ignore();
 		set_name(new_s);
 	}
 	// Artista
 	cout << "Artista atual: \""<< get_artist()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo artista. >>" ;
-		getline(cin, new_s,'\n');	
-		//cin.ignore();
+		getline(cin, new_s,'\n');
 		set_artist(new_s);
 	}
 	// Estilo
 	cout << "Estilo atual: \""<< get_style()<< "\".";	
 	if (my_question(" Deseja alterar?") ){
 		cout << "Insira novo estilo. >>" ;
-		getline(cin, new_s,'\n');	
-		//cin.ignore();
+		getline(cin, new_s,'\n');
 		set_style(new_s);
 	}
+
+	return barcode_changed;
 }
 
 /**

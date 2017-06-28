@@ -22,15 +22,13 @@ int main(int argc, char const *argv[])
 	Cesta loja;	/**< Produtos da loja */
 	Cesta cliente;	/**< Produtos que o cliente deseja comprar da loja */
 
-	loja.load();
-
 	cout << "Bem vindo ao sistema de admnistração de produtos da QLeveTudo." << endl
 		<< 	"Carregando Cesta da loja...";
 
 	loja.load();	// Carregando produtos da loja do arquivo "data/my_store.csv"
 	
-	cout << "Pronto. Total de Produtos cadastrados: " << loja.size() << endl
-		<< " Total de unidades disponíveis: " << loja.units() << endl
+	cout <<  endl << "Total de Produtos cadastrados: " << loja.size() << endl
+		<< "Total de unidades disponíveis: " << loja.units() << endl
 		<< "====================================================" << endl;
 
 	menu_principal(loja, cliente);	// Interação com o usuário
@@ -39,7 +37,7 @@ int main(int argc, char const *argv[])
 
 	cout << "Salvando informações do estoque da loja..." << endl;
 
-	loja.save();	// Salva os produtos do Cesta da loja em "data/my_store.csv" (sobrescreve)
+//	loja.save();	// Salva os produtos do Cesta da loja em "data/my_store.csv" (sobrescreve)
 
 	cout << "Saindo. . ." << endl;
 

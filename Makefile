@@ -24,7 +24,7 @@ INC3 =-I include/produtos
 
 # ================= ALL ==================
 # Creates everything that is needed in order to compile, compiles and then deletes the .o files
-all: init bin/QLT bin/exportar
+all: init bin/QLT bin/exportar clean
 
 # Creates the 'bin' folder at the current directory if there's no other folder with this name on it.
 init:
@@ -40,7 +40,7 @@ docs: Doxyfile
 # ============== VALGRIND =================
 # Runs valgrind with 'bin/QLT'
 valq:
-	valgrind --leak-check=yes bin/exportar
+	valgrind --leak-check=yes bin/QLT
 
 # Runs valgrind with 'bin/exportar'
 vale:
