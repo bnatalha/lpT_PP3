@@ -39,8 +39,12 @@ docs: Doxyfile
 
 # ============== VALGRIND =================
 # Runs valgrind with 'bin/QLT'
-val:
-	valgrind --leak-check=yes bin/QLT
+valq:
+	valgrind --leak-check=yes bin/exportar
+
+# Runs valgrind with 'bin/exportar'
+vale:
+	valgrind --leak-check=yes bin/exportar a
 
 # ============== EXECUTABLES ==============
 # For QLT:

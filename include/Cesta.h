@@ -15,7 +15,7 @@
 
 /**
 * @enum direction
-* @brief indica Domínio e contradomínio da função
+* @brief indica qual Cesta receberá informações e em qual Cesta será realizada a busca por Produtos/informações
 */
 enum direction {loja_loja = 0, loja_venda = 1, venda_loja, venda_venda };
 
@@ -25,10 +25,10 @@ enum direction {loja_loja = 0, loja_venda = 1, venda_loja, venda_venda };
 */
 void print_direction(direction& x , std::ostream& out)
 {
-	if(x == direction::loja_loja) out << "O : loja -> loja";
-	if(x == direction::loja_venda) out << "O : loja -> venda";
-	if(x == direction::venda_loja) out << "O : venda -> loja";
-	if(x == direction::venda_venda) out << "O : venda -> venda";
+	if(x == direction::loja_loja) out << "Operação : loja -> loja";
+	if(x == direction::loja_venda) out << "Operação : loja -> cliente";
+	if(x == direction::venda_loja) out << "Operação : cliente -> loja";
+	if(x == direction::venda_venda) out << "Operação : cliente -> cliente";
 }
 
 /**
@@ -69,7 +69,7 @@ class Cesta
 		int size();	/**< Retorna a quantidade total de produtos cadastrados */
 		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
 		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */				
-		bool is_valid_type( const string& str);
+		bool is_valid_type( const string& str); /*!*/
 
 		// Setters
 		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
@@ -86,8 +86,8 @@ class Cesta
 		void print_notafiscal(std::ostream& out); /**<  Imprime os Produtos no formato de um cupom fiscal da loja */ 
 		
 		// Manipulação de arquivos
-		void save();	/**<  Salva os Produtos e listas desta Cesta em um arquivo .csv */ 
-		void load();	/**<  Carrega os Produtos e listas desta Cesta de um arquivo .csv */
+		bool save();	/**<  Salva os Produtos e listas desta Cesta em um arquivo .csv */ 
+		bool load();	/**<  Carrega os Produtos e listas desta Cesta de um arquivo .csv */
 		void export_csv(const char* filename, int& print_full);
 
 		// Sobrecarga de operadores
@@ -110,7 +110,7 @@ class Cesta
 // -------------------------------------------------
 // ----------------------------------------- Getters 
 
-int Cesta::unities()
+int Cesta::units()
 {
 	int sum = 0;	// Vai armazenar a soma total de unidades de todos os produtos do grupo
 
@@ -174,8 +174,8 @@ void Cesta::reg( Produto* prod )
 */
 void Cesta::unreg( typename map<string, Produto*>::iterator& it )
 {
-	delete (*it).second;	// deleta o conteudo apontado pelo ponteiro para produto
-	produtos.erase(it);	// deleta o par do mapa;
+	if(it->second != NULL)	delete (*it).second;	// deleta o conteudo apontado pelo ponteiro para produto (se este não estiver apontando para NULL)
+	if(produtos.find(it->first) != produtos.end()) produtos.erase(it);	// deleta o par do mapa, se encontrá-lo.
 }
 
 /**
@@ -184,7 +184,7 @@ void Cesta::unreg( typename map<string, Produto*>::iterator& it )
 */
 void Cesta::absorb_qnt(typename map<string, Produto*>::iterator it, const int x)
 {
-	bool found = false;	// Indica se a o produto apontado por 'it' foi encontrado na Cesta que chamou esta função
+	bool found = false;	// Indica se o produto apontado por 'it' foi encontrado na Cesta que chamou esta função
 
 	for(map<string, Produto*>::iterator aqui = produtos.begin();
 		aqui != produtos.end(); aqui++)	// Percorre a cesta que chamou a função
@@ -196,7 +196,7 @@ void Cesta::absorb_qnt(typename map<string, Produto*>::iterator it, const int x)
 			aqui->second->set_quantity( aqui->second->get_quantity() + x );	// Soma a quantidade disponivel na cesta com 'x'
 			(it->second)->set_quantity( (it->second)->get_quantity() - x );	// Subtrai unidades disponíveis de 'it' por 'x'
 			
-			cout << "Tit->second = " << it->second << " e aqui->second = " << aqui->second << endl;
+			//cout << "Tit->second = " << it->second << " e aqui->second = " << aqui->second << endl;
 			break;	// Sai do loop
 		}
 	}
@@ -209,12 +209,12 @@ void Cesta::absorb_qnt(typename map<string, Produto*>::iterator it, const int x)
 		for(map<string, Produto*>::iterator aqui = produtos.begin();
 			aqui != produtos.end(); aqui++)	// Percorre a cesta que chamou a função
 		{
-			if (aqui->second->get_barcode() == it->second->get_barcode())	// Se achar o produto que é igual ao apontado por 'it'
+			if (aqui->second->get_barcode() == it->second->get_barcode())	// Quando achar o produto recém registrado
 			{
 				aqui->second->set_quantity( x );	// Fixa a quantidade disponivel na cesta com 'x'
 				(it->second)->set_quantity( (it->second)->get_quantity() - x );	// Subtrai unidades disponíveis de 'it' por 'x'
 
-				cout << "Fit->second = " << it->second << " e aqui->second = " << aqui->second << endl;
+				//cout << "Fit->second = " << it->second << " e aqui->second = " << aqui->second << endl;
 				
 				break;	// Sai do loop
 			}
@@ -321,7 +321,6 @@ void Cesta::print_type( std::ostream& out, const string& my_type )
 {
 	int i = 0;	// índice
 
-	//out << "LISTANDO '"<< my_type <<"': {" << endl;
 	for (auto &e: produtos)
 	{
 		if( e.second->get_type() == my_type)	// Se for o tipo que procuro
@@ -331,24 +330,25 @@ void Cesta::print_type( std::ostream& out, const string& my_type )
 			cout << endl;
 		}
 	}
-	//out << "}" << endl;
 }
 
+/**
+* @param out ostream onde vai ser impressa a função
+* @param my_provider Fornecedor dos Produtos a serem impressos em 'out'
+*/
 void Cesta::print_provider( std::ostream& out, const string& my_provider )
 {
 	int i = 0;	// índice
 
-	//out << "LISTANDO '"<< my_type <<"': {" << endl;
 	for (auto &e: produtos)
 	{
-		if( e.second->get_provider() == my_provider)	// Se for o tipo que procuro
+		if( e.second->get_provider() == my_provider)	// Se for o fornecedor que procuro
 		{
 			cout << "(" << i++ << "):";
 			e.second->print_it(out);
 			cout << endl;
 		}
 	}
-	//out << "}" << endl;
 }
 
 void Cesta::print_notafiscal(std::ostream& out)
@@ -362,10 +362,8 @@ void Cesta::print_notafiscal(std::ostream& out)
 	out << "----------------------------------------------------------------" << endl;
 	if(produtos.empty() == false )
 	{
-		//out << "CD's:" << endl;
 		print_type(out,"CD");
 		out << "________________________________________________________________" << endl;
-		//out << "Salgados:" << endl;
 		print_type(out,"Salgado");
 		out << "________________________________________________________________" << endl;
 	}
@@ -379,8 +377,10 @@ void Cesta::print_notafiscal(std::ostream& out)
 // -------------------------------------------------
 // ------------------------- Manipulação de Arquivos 
 
-
-void Cesta::load()
+/**
+* @return true se conseguiu carregar o a Cesta com sucesso
+*/
+bool Cesta::load()
 {
 	string filename("data/my_store.csv");    // Local do arquivo a ser salvo com os dados da cesta
 	string dummy_type;	// Armazena o tipo do produto
@@ -424,6 +424,7 @@ void Cesta::load()
 
 				if (dummy_type == "Salgado")
 				{
+					try{
 					new_sa = new Salgado;
 					new_sa->load_csv_it(inData);	// Carrega o new_ com o conteudo de uma linha de inData
 					produtos.insert(std::pair<string, Produto*>(new_sa->get_barcode(),new_sa));	// Armazena o produto no mapa de produtos diretamente
@@ -433,26 +434,30 @@ void Cesta::load()
 				// doce etc
 			}
 			
+			return true;
 		}
 		else 
 			cout << "\"" << filename << "\" está vazio." << endl;
 
 		inData.close();	// Fecha stream de leitura
+		return false;
 	}
 	else // O arquivo não foi iniciado corretamente
 	{
-		//cerr << "Erro ao tentar inicializar stream de entrada para " << filename << "." << endl;
+		//[THROW]
 		cout << "Erro ao tentar inicializar stream de entrada para " << filename << "." << endl
 			<< "Iniciando loja sem produtos cadastrados." << endl;
 		//exit(1);
+		return false;
 	}
 }
 
 /**
 * @details Cada linha vai conter as seguintes informações sobre os produtos:
 * "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;<informações específicas de cada produto>
+* @return true se conseguiu salvar, false caso contrário
 */
-void Cesta::save()
+bool Cesta::save()
 {
 	string filename("data/my_store.csv");    /**< string com o nome do local do arquivo a ser salvo com os dados do baú */
 
@@ -467,19 +472,24 @@ void Cesta::save()
 
 		// Fecha stream.
 		outData.close();
+
+		return true;	// Conseguiu ler com sucesso
 	}
 	else
 	{
+		//[THROW]
 		cerr << "Erro ao tentar inicializar stream de saída para "<< filename <<"." << endl;
-		exit(1);
+		//exit(1);
+		return false;	// Não conseguiu ler
 	}
 }
 
 /**
 * @details Cada linha vai conter as seguintes informações sobre os produtos:
 * "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;<informações específicas de cada produto>
+* @return true se conseguiu salvar, false caso contrário
 */
-void Cesta::export_csv(const char* filename, int& print_full)
+bool Cesta::export_csv(const char* filename, int& print_full)
 {
 	string outfile("data/"); /**< string com o nome do local do arquivo a ser salvo com os dados do baú */
 	outfile += filename;
@@ -493,19 +503,23 @@ void Cesta::export_csv(const char* filename, int& print_full)
 		// Imprime os produtos de cada secção
 		for(auto &e: produtos)
 		{
-			if(print_full) e.second->save_csv_it(outData);
-			else e.second->save_csv_P(outData);
+			if(print_full) e.second->save_csv_it(outData);	// se flag --full for estiver habilitada, imprime todos os dados do produto
+			else e.second->save_csv_P(outData);	// caso contrário imprime só os atributos de Produto*
 		}
 
 		// Fecha stream.
 		outData.close();
 
 		cout << "!Exportado para \"" << outfile << "\".";
+		
+		return true; // Conseguiu ler com sucesso
 	}
 	else
 	{
+		//[THROW]
 		cerr << "Erro ao tentar inicializar stream de saída para "<< outfile <<"." << endl;
-		exit(1);
+		//exit(1);
+		return false; // Não conseguiu ler
 	}
 }
 

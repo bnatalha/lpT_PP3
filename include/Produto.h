@@ -69,7 +69,6 @@ class Produto
 		void set_price( const float& x ) { price = x; }	/**< Modifica preço do produto (float) */
 		void set_barcode( const string& x ) { barcode = x; } 	/**< Modifica o código de barras do produto (string) */
 		void set_quantity( const int& x ) { quantity = x; }	/**< Modifica a quantidade de produtos (unidade) existentes */
-
 		void change_product_specs();	/**< Modifica uma por uma as características do produto */
 
 		// Sobrecarga de operadores
@@ -132,7 +131,7 @@ class Produto
 		virtual void print_it (std::ostream& out) const =0;	/**< Função virtual pura que define como vai ser a impressão das informações do produto */
 		virtual void save_csv_it (std::ofstream& out) =0;	/**< Função virtual pura que define como vai ser salva as informações dos produtos em um arquivo .csv */
 		virtual void load_csv_it (std::ifstream& in) =0;	/**< Função virtual pura que define como seram lidas as informações dos produtos de um arquivo .csv */
-		void save_csv_P (std::ofstream& out);
+		void save_csv_P (std::ofstream& out);	/**< Salva apenas os dados comuns a todos objetos de uma subclasse da classe Produto ('product_type', 'provider', 'barcode', 'quantity' e 'price')  */
 		
 };
 
@@ -230,12 +229,18 @@ bool Produto::operator<= ( const Produto &x){
 
 // Auxiliares de alteração
 
-
+/**
+* @brief pergunta ao usuário uma questão simples que requer como resposta "sim" ou "não". Não deixa
+* o usuário prosseguir até receber uma resposta válida.
+* @param question armazena a pergunta que será feita ao usuario
+* @retval true O usuário respondeu "sim" ('y')
+* @retval false O usuário respondeu "não" ('n')
+*/
 bool my_question(const char* question){
 	
-	char answer;
-	int counter = 0;
-	do
+	char answer;	// armazena a resposta do usuário
+	int counter = 0;	// conta quantas vezes o usuário já respondeu a pergunta
+	do //enquanto o usuário não responde com 'n' ou 'y'
 	{
 		cout << question << " ('y' para sim e 'n' para não) >>";
 		cin >> answer;
@@ -243,15 +248,15 @@ bool my_question(const char* question){
 		if(counter++ > 0)cout << "Input inválido. Tente de novo. >>";
 	}
 	while( answer != 'y' and answer != 'n');
-	return ( answer == 'y');	// retorna true se a resposta for positiva;
+	return ( answer == 'y');	// retorna true se a resposta for "sim"
 }
 
 void Produto::change_product_specs()
 {
-	string new_s;
+	string new_s;	//string que armazena o dado que o usuário irá passar
 
-	cout << "Fornecedor atual: \""<< get_provider()<< "\".";	
-	if (my_question(" Deseja alterar?") ){
+	cout << "Fornecedor atual: \""<< get_provider()<< "\".";	// Mostra o fornecedor atual do produto
+	if (my_question(" Deseja alterar?") ){	// Pergunta ao usuário se ele deseja trocar o fornecedor do produto
 		cout << "Insira novo fornecedor. >>" ;
 		getline(cin, new_s,'\n');
 		//cin.ignore();
@@ -260,7 +265,7 @@ void Produto::change_product_specs()
 	}
 
 	cout << "Preço atual: $"<< get_price()<< ".";	
-	if (my_question(" Deseja alterar?") ){
+	if (my_question(" Deseja alterar?") ){ // Pergunta ao usuário se ele deseja trocar o preço do produto
 		cout << "Insira novo preço. >>" ;
 		getline(cin, new_s, '\n');	
 		//cin.ignore();
@@ -268,7 +273,7 @@ void Produto::change_product_specs()
 	}
 
 	cout << "Código de barras atual: "<< get_barcode()<< ".";	
-	if (my_question(" Deseja alterar?") ){
+	if (my_question(" Deseja alterar?") ){ // Pergunta ao usuário se ele deseja trocar o código de barras do produto
 		cout << "Insira novo codigo de barras. >>" ;
 		getline(cin, new_s, '\n');	
 		//cin.ignore();
@@ -276,7 +281,7 @@ void Produto::change_product_specs()
 	}
 
 	cout << "Quantidade atual: "<< get_quantity()<< ".";
-	if (my_question(" Deseja alterar?") ){
+	if (my_question(" Deseja alterar?") ){ // Pergunta ao usuário se ele deseja trocar a quantidade do produto
 	cout << "Insira nova quantidade. >>" ;
 		getline(cin, new_s, '\n');	
 		//cin.ignore();
