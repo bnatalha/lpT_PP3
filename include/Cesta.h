@@ -445,7 +445,7 @@ bool Cesta::save()
 */
 bool Cesta::export_csv(const char* filename, int& print_full)
 {
-	string outfile("data/"); /**< string com o nome do local do arquivo a ser salvo com os dados do baú */
+	string outfile("data/exported/"); /**< string com o nome do local do arquivo a ser salvo com os dados do baú */
 	outfile += filename;
 	outfile += ".csv";    
 

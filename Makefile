@@ -37,6 +37,8 @@ windows: init qlevetudo.dll QLT.exe exportar.exe
 # Creates the 'build' folder at the current directory if there's no other folder with this name on it.
 init:
 	mkdir -p lib ;\
+	mkdir -p data ;\
+	mkdir -p data/exported ;\
 	mkdir -p build
 
 # ============ DOCUMENTATION ==============
