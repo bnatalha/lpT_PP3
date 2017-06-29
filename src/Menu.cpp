@@ -32,7 +32,7 @@ namespace qlt{
 	/**
 	* @brief Menu de opções principal
 	* @param m_loja Referência para Cesta da loja
-	* @param m_loja Referência para Cesta de venda
+	* @param m_cliente Referência para Cesta de venda
 	*/
 	void menu_principal (Cesta& m_loja, Cesta& m_cliente)
 	{
@@ -62,9 +62,10 @@ namespace qlt{
 	}
 
 	/**
-	* @brief Menu de opções de Modificação de item de item
-	* @param target Cesta que será consultado
-	* @param aux Cesta que será consultado para movimentação de Produtos se necessário
+	* @brief Menu de opções de Modificação de produtos enxontrados
+	* @param it Referência para o iterator que aponta para o produto encontrado
+	* @param m_loja Referência para Cesta da loja
+	* @param m_cliente Referência para Cesta de venda
 	* @param my_case 'consulta' para consulta do Cesta da loja e 'venda' consulta do Cesta do cliente
 	*/
 	void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta& m_loja, Cesta& m_cliente, direction my_case )
@@ -74,7 +75,6 @@ namespace qlt{
 
 		do
 		{
-			print_direction(my_case,cout);
 			cout << endl
 				<< "O que você deseja fazer com este "<< (it->second)->get_type() <<":" << endl
 				<< "1) modificar;" << endl
@@ -149,8 +149,8 @@ namespace qlt{
 
 	/**
 	* @brief Menu de opções de Consulta de item
-	* @param target Cesta que será consultado
-	* @param aux Cesta que será consultado para movimentação de Produtos se necessário
+	* @param m_loja Referência para Cesta da loja
+	* @param m_cliente Referência para Cesta de venda
 	* @param my_case Caso da consulta ('consulta' para consulta do Cesta da loja e 'venda' consulta do Cesta do cliente)
 	*/
 	void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
@@ -161,12 +161,10 @@ namespace qlt{
 
 		do
 		{
-			print_direction(my_case,cout);
 			cout << endl
 				<< "Opções de consulta:" << endl
 				<< "1) Consultar/alterar produto por código de barras;" << endl
 				<< "2) Listar produtos por tipo;" << endl
-				//<< "3) Listar produtos por fornecedor;" << endl
 				<< "0) voltar;" << endl
 				<< "Digite o número da operação a ser realizada. >>";
 		
@@ -236,23 +234,13 @@ namespace qlt{
 					cout << endl << "--Fim--" << endl;
 				}
 			}
-			/*if(op == 3)	//3) Listar produtos por fornecedor;
-			{
-				bool op_loja = (my_case == direction::venda_loja or my_case == direction::loja_loja);
-				Cesta * alvo = (op_loja?m_loja:m_cliente) ;
-				string * fornecedores;
-
-				cout << "Os Fornecedores que possuem produtos cadastrados na "
-					 << (op_loja ? "loja": "venda")
-					 <<" são: ";
-			}*/
 
 		} while(op != 0);
 	}
 
 	/**
 	* @brief Menu de opções de Cadastro de Item na loja
-	* @param alvo Cesta onde o iterm será cadastrado
+	* @param target Cesta onde o iterm será cadastrado
 	*/
 	void sub_cadastro_loja(Cesta& target)
 	{
@@ -312,8 +300,9 @@ namespace qlt{
 	}
 
 	/**
-	* @brief Menu de opções de Cadastro de Item na loja
-	* @param alvo Cesta onde o iterm será cadastrado
+	* @brief Auxilia a modificar items de uma Cesta
+	* @param it iterator para o produto a ser alterado
+	* @param target Cesta onde o iter pertence
 	* @return true se alterou o código de barras de algum produto
 	*/
 	bool sub_modificar(typename map<string, Produto*>::iterator& it, Cesta& target )
@@ -357,8 +346,9 @@ namespace qlt{
 
 
 	/**
-	* @brief Menu de Realização de m_cliente
-	* @return opção selecionada
+	* @brief Menu de Realização de venda
+	* @param m_loja Referência para Cesta da loja
+	* @param m_cliente Referência para Cesta de venda
 	*/
 	void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 	{
@@ -390,13 +380,13 @@ namespace qlt{
 			{
 				m_cliente.print(cout);
 			}
-			else if(op == 4)	//5) Finalizar venda
+			else if(op == 4)	//4) Finalizar venda
 			{
 				m_cliente.print_notafiscal(cout);	// Imprime nota fiscal
 				m_cliente.clear();	//Limpa a Cesta cliente
 				cout << "Venda finalizada." << endl;
 			}
-			else if(op == 0)
+			else if(op == 0)	//0) Cancelar venda
 			{
 				for(map<string, Produto*>::iterator it = m_cliente.produtos.begin(); it != m_cliente.produtos.end(); it++)
 					m_loja.absorb_qnt(it, (it->second)->get_quantity());	// Absorve todos as unidades apontados por 'it' para loja.

@@ -56,7 +56,7 @@ namespace qlt{
 	}
 
 	/**
-	* @retrun true se tiver alterado o codigo de barras. false caso contrário.
+	* @return true se tiver alterado o codigo de barras. false caso contrário.
 	*/
 	bool CD::change()
 	{

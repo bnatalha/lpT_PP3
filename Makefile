@@ -67,7 +67,7 @@ QLT:
 	$(CC) $(CPPFLAGS) $(SRC_DIR)/main.cpp $(LIB_DIR)/qlevetudo.so -o $(OBJ_DIR)/$@
 
 exportar:
-	$(CC) $(CPPFLAGS) $(SRC_DIR)/main.cpp $(LIB_DIR)/qlevetudo.so -o $(OBJ_DIR)/$@ 	
+	$(CC) $(CPPFLAGS) $(SRC_DIR)/exportar.cpp $(LIB_DIR)/qlevetudo.so -o $(OBJ_DIR)/$@ 	
 
 
 
@@ -82,7 +82,7 @@ QLT.exe:
 	$(CC) $(CPPFLAGS) $(SRC_DIR)/main.cpp $(LIB_DIR)/qlevetudo.dll -o $(OBJ_DIR)/$@ 	
 
 exportar.exe:
-	$(CC) $(CPPFLAGS) $(SRC_DIR)/main.cpp $(LIB_DIR)/qlevetudo.dll -o $(OBJ_DIR)/$@ 	
+	$(CC) $(CPPFLAGS) $(SRC_DIR)/exportar.cpp $(LIB_DIR)/qlevetudo.dll -o $(OBJ_DIR)/$@ 	
 
 
 # ================ CLEANER ================

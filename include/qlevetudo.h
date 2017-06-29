@@ -1,3 +1,12 @@
+/**
+* @file
+* @brief Cabeçário principal do namespace qlt.
+* @author Natália Azevedo de Brito (https://github.com/bnatalha)
+* @since 29/06/2017
+* @date 29/06/2017
+* @sa --
+*/
+
 #ifndef QLEVETUDO_H
 #define QLEVETUDO_H
 
@@ -5,28 +14,43 @@
 
 /**
 * @namespace qlt
-* @brief Contem definições feitas pelo usuário para o sistema QLeveTudo
+* @brief Contem definições para o sistema QLeveTudo
 */
 namespace qlt
 {
+	/**
+	* @brief pergunta ao usuário uma questão simples que requer como resposta "sim" ou "não". Não deixa
+	* o usuário prosseguir até receber uma resposta válida.
+	* @param question armazena a pergunta que será feita ao usuario
+	* @retval true O usuário respondeu "sim" ('y')
+	* @retval false O usuário respondeu "não" ('n')
+	*/
+	bool my_question(const char* question){
+		string my_prompt(" ('y' para sim e 'n' para não) >>");	// orientação ao usuário
+		char answer[30];	// armazena a resposta do usuário
+			
+		cout << question << my_prompt;	// mostra a orientação ao usuário;
+		
+		do //enquanto o usuário não responde com 'n' ou 'y'
+		{
+			cin.getline(answer,30);	//pega a resposta
+			
+			// se pegar falhar a entrada, ou cin.getline tiver extraido mais que dois caracteres ou não for y ou n
+			try{if(cin.fail() or cin.gcount()>2 or (strcmp(answer,"y")!=0 and strcmp(answer,"n")!=0) )
+				throw std::invalid_argument("Input inválido.");	//Joga uma exceção de entrada inválida
+			}catch(std::exception &e){
+				cout << e.what() << my_prompt;
+			}
+		}
+		while( (strcmp(answer,"y") !=0 and strcmp(answer,"n")!=0 ) );
+		return ( strcmp(answer,"y") == 0 );	// retorna true se a resposta for "sim"
+	}
 
 	/**
 	* @enum direction
 	* @brief indica qual Cesta receberá informações e em qual Cesta será realizada a busca por Produtos/informações
 	*/
 	enum direction {loja_loja = 0, loja_venda = 1, venda_loja, venda_venda };
-
-	/**
-	* @brief Imprime se uma venda foi iniciada e qual Cesta está sendo operada 
-	* @param out Referência para uma stream de saída
-	*/
-	void print_direction(direction& x , std::ostream& out)
-	{
-		if(x == direction::loja_loja) out << "Não iniciou venda. Operando: estoque";
-		if(x == direction::loja_venda) out << "Não iniciou venda. Operando: cesta do cliente";
-		if(x == direction::venda_loja) out << "Iniciou venda. Operando: estoque";
-		if(x == direction::venda_venda) out << "Iniciou venda. Operando: cesta do cliente";
-	}
 
 	/**
 	* @class Produto
@@ -60,7 +84,7 @@ namespace qlt
 
 			/**
 			* @brief Produto criado a partir de outro produto (cópia)
-			* @param original produto a ser copiado
+			* @param origem produto a ser copiado
 			*/
 			Produto( const Produto &origem)
 				: product_type(origem.product_type), provider(origem.provider), price(origem.price), barcode(origem.barcode), quantity(origem.quantity)
@@ -294,7 +318,7 @@ namespace qlt
 
 			/**
 			* @brief Cesta criada a partir de outra Cesta (cópia)
-			* @param original Cesta a ser copiado
+			* @param origem Cesta a ser copiado
 			*/
 			Cesta( Cesta &origem)	{*this = origem;}
 

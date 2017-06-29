@@ -6,7 +6,7 @@
 * @brief Definição e implementação da classe Produto
 * @author Natália Azevedo de Brito (https://github.com/bnatalha)
 * @since 05/06/2017
-* @date 06/06/2017
+* @date 29/06/2017
 * @sa --
 */
 
@@ -192,7 +192,7 @@ void Cesta::fetch_from( Cesta& orig, const string& m_search )
 /**
 * @param orig Cesta onde os produtos do tipo 'm_type' seram procurados
 * @param m_provider fornecedor procurado
-* @param m_provider tipo procurado
+* @param m_type tipo procurado
 */
 void Cesta::fetch_type_and_provider_from( Cesta& orig, const string& m_type, const string& m_provider )
 {
@@ -409,7 +409,7 @@ bool Cesta::load()
 
 /**
 * @details Cada linha vai conter as seguintes informações sobre os produtos:
-* "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;<informações específicas de cada produto>
+* "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;informações específicas de cada produto
 * @return true se conseguiu salvar, false caso contrário
 */
 bool Cesta::save()
@@ -440,7 +440,7 @@ bool Cesta::save()
 
 /**
 * @details Cada linha vai conter as seguintes informações sobre os produtos:
-* "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;<informações específicas de cada produto>
+* "TIPO";"FORNECEDOR";PREÇO;"CODIGO_DE_BARRAS";QUANTIDADE;informações específicas de cada produto
 * @return true se conseguiu salvar, false caso contrário
 */
 bool Cesta::export_csv(const char* filename, int& print_full)

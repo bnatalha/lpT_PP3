@@ -4,10 +4,9 @@
 /**
 * @file
 * @brief Implementação de um Salgado (derivados da classe Produto)
-* @author Michel Jean Katsilis (https://github.com/MJK2)
 * @author Natália Azevedo de Brito (https://github.com/bnatalha)
 * @since 04/06/2017
-* @date --
+* @date 29/06/2017
 * @sa --
 */
 

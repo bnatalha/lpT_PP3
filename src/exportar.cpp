@@ -122,7 +122,7 @@ int main (int argc,char *argv[])
 
 /**
 * @brief Imprime no terminal um mini manual de como executar o programa de exportação
-* @param nome do executável
+* @param s nome do executável
 */
 void mostrar_ajuda(char *s)
 {
@@ -137,7 +137,8 @@ void mostrar_ajuda(char *s)
 
 /**
 * @brief Verifica se 'optarg' não é uma flag
-* @param my_arg optarg a ser verificado
+* @param operacao flag detectado pelo opt_long
+* @param meu_argumento optarg a ser verificado
 * @return false caso 'optarg' seja igual a "--full", "-t" ou "-f"
 * e true caso contrário
 */
@@ -158,7 +159,8 @@ bool nao_eh_flag(char operacao, char* meu_argumento)
 
 /**
 * @brief Verifica se 'optarg' é um argumento valido
-* @param my_arg optarg a ser verificado
+* @param operacao flag detectado pelo opt_long
+* @param meu_argumento optarg a ser verificado
 * @return false caso 'optarg' seja igual a "--full", "-t" ou "-f"
 * e true caso contrário
 */
@@ -204,8 +206,8 @@ bool valid_arg(char operacao, char* meu_argumento)
 */
 void export_cesta()
 {
-	Cesta estoque;	/**< Cesta que carregara o estoque */
-	Cesta to_export;	/**< Cesta que será exportada */
+	qlt::Cesta estoque;	/**< Cesta que carregara o estoque */
+	qlt::Cesta to_export;	/**< Cesta que será exportada */
 
 	estoque.load(); // Se conseguir Carregar o estoque
 

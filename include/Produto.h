@@ -6,7 +6,7 @@
 * @brief Definição e implementação da classe Produto
 * @author Natália Azevedo de Brito (https://github.com/bnatalha)
 * @since 04/06/2017
-* @date --
+* @date 29/06/2017
 * @sa --
 */
 
@@ -107,34 +107,6 @@ namespace qlt{
 	}
 
 	// Auxiliares de alteração
-
-	/**
-	* @brief pergunta ao usuário uma questão simples que requer como resposta "sim" ou "não". Não deixa
-	* o usuário prosseguir até receber uma resposta válida.
-	* @param question armazena a pergunta que será feita ao usuario
-	* @retval true O usuário respondeu "sim" ('y')
-	* @retval false O usuário respondeu "não" ('n')
-	*/
-	bool my_question(const char* question){
-		string my_prompt(" ('y' para sim e 'n' para não) >>");	// orientação ao usuário
-		char answer[30];	// armazena a resposta do usuário
-			
-		cout << question << my_prompt;	// mostra a orientação ao usuário;
-		
-		do //enquanto o usuário não responde com 'n' ou 'y'
-		{
-			cin.getline(answer,30);	//pega a resposta
-			
-			// se pegar falhar a entrada, ou cin.getline tiver extraido mais que dois caracteres ou não for y ou n
-			try{if(cin.fail() or cin.gcount()>2 or (strcmp(answer,"y")!=0 and strcmp(answer,"n")!=0) )
-				throw std::invalid_argument("Input inválido.");	//Joga uma exceção de entrada inválida
-			}catch(std::exception &e){
-				cout << e.what() << my_prompt;
-			}
-		}
-		while( (strcmp(answer,"y") !=0 and strcmp(answer,"n")!=0 ) );
-		return ( strcmp(answer,"y") == 0 );	// retorna true se a resposta for "sim"
-	}
 
 	/**
 	* @return true se alterou o código de barras do produto
