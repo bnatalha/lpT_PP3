@@ -167,46 +167,53 @@ void Salgado::load_csv_it (std::ifstream& in)
 {
 	string dummy;
 
-	// Fornecedor
-	in.ignore(1);	// ignora o primeiro '\"'
-	getline(in, dummy, '\"');	// ex.: dummy = "Sony Music"
-	set_provider(dummy);	// modifica Fornecedor
-	in.ignore(1);	// ignora o ';''
+	// Validade
 
-	// Preço
-	getline(in, dummy, ';');	// ex.: dummy = "9.4"
-	set_price( std::stof(dummy) );	// modifica Fornecedor
-
-	// Código de Barras
-	in.ignore(1);	// ignora o primeiro '\"'
-	getline(in, dummy, '\"');	// ex.: dummy = "000000123"
-	set_barcode(dummy);	// modifica Código de Barras
-	in.ignore(1);	// ignora o ';'
-		
-	// Quantidade
-	getline(in, dummy, ';');	// ex.: dummy = "2"
-	set_quantity( std::stoi(dummy) );	// modifica Quantidade
-
-	// 
-
-	// validade
+	// exceção:
+	if( char(in.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Validade.");
 	in.ignore(1);	// ignora o primeiro '\"'
 	getline(in, dummy, '\"');	// ex.: dummy = "13/04/18"
+	// exceção:
+	try{
+		if(dummy.size() != 8) throw std::runtime_error("Quantidade de caractéres inválida.");
+		if( (isdigit(dummy.at(0)) == false) or (isdigit(dummy.at(1)) == false) or
+			(dummy.at(2) != '/') or
+			(isdigit(dummy.at(3)) == false) or (isdigit(dummy.at(4)) == false) or
+			(dummy.at(5) != '/') or
+			(isdigit(dummy.at(6)) == false) or (isdigit(dummy.at(7)) == false))	// se conter algum caractere inválido
+		throw std::runtime_error("Formato inválido.");
+	}catch(std::exception &e){
+		string error = "Em validade: ";
+		error += e.what();
+		throw std::runtime_error(error+"\nFormato correto: \"13/04/18\")");
+	}
 	set_expiration(dummy);	// modifica a validade
+	// exceção:
+	if( char(in.peek()) != ';' ) throw std::runtime_error("Faltando ';' entre Validade e Sódio.");
 	in.ignore(1);	// ignora o ';'
 
-	// sódio
-	getline(in, dummy, ';');	// ex.: dummy = "24"
-	set_sodium( std::stof(dummy) );	// modifica sódio
+	// Sódio
 
-	// glutem
-	getline(in, dummy, ';');	// ex.: dummy = true
+	// exceção:
+	getline(in, dummy, ';');	// ex.: dummy = "24"
+	// exceção:
+	try{set_sodium( std::stof(dummy) );}	// modifica sódio
+	catch(std::exception& e){
+		throw std::runtime_error("Valor do sódio inválido");
+	}
+
+	// Glutem
+
+	// exceção:
+	if( char(in.peek()) != 'y' and char(in.peek()) != 'n'  ) throw std::runtime_error("Valor do glutem inválido.");
+	getline(in, dummy, ';');	// ex.: dummy = "n"
+	// exceção:
 	set_gluten( (dummy == "y" ?true:false) );	// modifica glutem
 
 	// lactose
-	getline(in, dummy);	// ex.: dummy = false
+	if( char(in.peek()) != 'y' and char(in.peek()) != 'n'  ) throw std::runtime_error("Valor de lactose inválido.");
+	getline(in, dummy);	// ex.: dummy = "y"
 	set_lactose( (dummy == "y" ?true:false) );	// modifica lactose
-	//in.ignore(1);	// ignora o primeiro '\n'
 	
 	// fim da linha
 }

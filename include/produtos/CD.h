@@ -166,44 +166,37 @@ void CD::load_csv_it (std::ifstream& in)
 {
 	string dummy;
 
-	// Fornecedor
-	in.ignore(1);	// ignora o primeiro '\"'
-	getline(in, dummy, '\"');	// ex.: dummy = "Sony Music"
-	set_provider(dummy);	// modifica Fornecedor
-	in.ignore(1);	// ignora o ';''
-	
-	// Preço
-	getline(in, dummy, ';');	// ex.: dummy = "9.4"
-	set_price( stof(dummy) );	// modifica Fornecedor
+	// Nome
 
-	// Código de Barras
-	in.ignore(1);	// ignora o primeiro '\"'
-	getline(in, dummy, '\"');	// ex.: dummy = "000000123"
-	set_barcode(dummy);	// modifica Código de Barras
-	in.ignore(1);	// ignora o ';'
-		
-	// Quantidade
-	getline(in, dummy, ';');	// ex.: dummy = "2"
-	set_quantity( stoi(dummy) );	// modifica Quantidade
-
-	// 
-
-	// nome
+	// exceção:
+	if( char(in.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Nome.");
 	in.ignore(1);	// ignora o primeiro '\"'
 	getline(in, dummy, '\"');	// ex.: dummy = "Album A"
 	set_name(dummy);	// modifica nome
+	// exceção:
+	if( char(in.peek()) != ';' ) throw std::runtime_error("Faltando ';' entre Nome e Artista.");
 	in.ignore(1);	// ignora o ';'
 
-	// artista
+	// Artista
+
+	// exceção:
+	if( char(in.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Artista.");
 	in.ignore(1);	// ignora o primeiro '\"'
 	getline(in, dummy, '\"');	// ex.: dummy = "Artistino"
 	set_artist(dummy);	// modifica artista
+	// exceção:
+	if( char(in.peek()) != ';' ) throw std::runtime_error("Faltando ';' entre Artista e Estilo.");
 	in.ignore(1);	// ignora o ';'
 
-	// estilo
+	// Estilo
+
+	// exceção:
+	if( char(in.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Estilo.");
 	in.ignore(1);	// ignora o primeiro '\"'
 	getline(in, dummy, '\"');	// ex.: dummy = "Forró"
 	set_style(dummy);	// modifica estilo
+	// exceção:
+	if( char(in.peek()) != '\n' ) throw std::runtime_error("Faltando nova linha após Estilo.");
 	in.ignore(1);	// ignora o primeiro '\n'
 	
 	// fim da linha

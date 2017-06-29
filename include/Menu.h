@@ -133,7 +133,6 @@ void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta&
 				cout << "Unidades disponiveis: " << (it->second)->get_quantity() << ". Quantas serao cadastradas? >>";
 				qtd = set_valid_number(0,(it->second)->get_quantity());	// Pega a quantidade a ser movida
 
-				//cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 				m_cliente.absorb_qnt(it, qtd);	// Cadastra o item.
 			}
 			else if(my_case == direction::venda_venda)
@@ -167,10 +166,11 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 			<< "Opções de consulta:" << endl
 			<< "1) Consultar/alterar produto por código de barras;" << endl
 			<< "2) Listar produtos por tipo;" << endl
+			//<< "3) Listar produtos por fornecedor;" << endl
 			<< "0) voltar;" << endl
 			<< "Digite o número da operação a ser realizada. >>";
 	
-		op = set_valid_number(0,2);	// Pega número válido
+		op = set_valid_number(0,3);	// Pega número válido
 		cout << endl;
 
 		// operações
@@ -207,7 +207,7 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 				(it->second)->print_it(cout);
 				cout << endl;
 
-				cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
+				
 				sub_encontrou_produto(it, m_loja, m_cliente, my_case);
 			}			
 			else
@@ -236,6 +236,16 @@ void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case )
 				cout << endl << "--Fim--" << endl;
 			}
 		}
+		/*if(op == 3)	//3) Listar produtos por fornecedor;
+		{
+			bool op_loja = (my_case == direction::venda_loja or my_case == direction::loja_loja);
+			Cesta * alvo = (op_loja?m_loja:m_cliente) ;
+			string * fornecedores;
+
+			cout << "Os Fornecedores que possuem produtos cadastrados na "
+				 << (op_loja ? "loja": "venda")
+				 <<" são: ";
+		}*/
 
 	} while(op != 0);
 }
@@ -355,7 +365,7 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 	int op = 34;
 
 	do
-	{	cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
+	{
 		cout << "Venda:" << endl
 			<< "1) Consultar items para adicionar a venda;" << endl
 			<< "2) Consultar/alterar items da venda;" << endl
@@ -382,14 +392,12 @@ void sub_venda(Cesta &m_loja, Cesta& m_cliente)
 		}
 		else if(op == 4)	//5) Finalizar venda
 		{
-			cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 			m_cliente.print_notafiscal(cout);	// Imprime nota fiscal
 			m_cliente.clear();	//Limpa a Cesta cliente
 			cout << "Venda finalizada." << endl;
 		}
 		else if(op == 0)
 		{
-			cout << "[DEBUG] &m_loja=" << &m_loja << " e &m_cliente=" <<&m_cliente << endl;
 			for(map<string, Produto*>::iterator it = m_cliente.produtos.begin(); it != m_cliente.produtos.end(); it++)
 				m_loja.absorb_qnt(it, (it->second)->get_quantity());	// Absorve todos as unidades apontados por 'it' para loja.
 			

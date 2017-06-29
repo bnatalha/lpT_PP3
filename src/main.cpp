@@ -37,7 +37,7 @@ int main(int argc, char const *argv[])
 
 	cout << "Salvando informações do estoque da loja..." << endl;
 
-//	loja.save();	// Salva os produtos do Cesta da loja em "data/my_store.csv" (sobrescreve)
+	loja.save();	// Salva os produtos do Cesta da loja em "data/my_store.csv" (sobrescreve)
 
 	cout << "Saindo. . ." << endl;
 

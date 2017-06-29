@@ -39,7 +39,8 @@ void print_direction(direction& x , std::ostream& out)
 class Cesta
 {
 	private:
-		map<string,Produto* > produtos;	/**< Onde são armazenados os produtos da loja */
+		map<string,Produto* > produtos;	/**< Onde são armazenados os produtos da Cesta */
+		//map<string,int> fornecedores;	/**< Onde são armazenados os fornecedores da Cesta */
 
 	public:
 
@@ -70,6 +71,7 @@ class Cesta
 		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
 		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */				
 		bool is_valid_type( const string& str); /*!*/
+		//string* get_provider_list();	/*!*/
 
 		// Setters
 		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
@@ -148,8 +150,6 @@ typename map<string, Produto*>::iterator Cesta::search( const string& m_barcode 
 	return it;	// *se it == produtos.end(), não encontrou.
 }
 
-
-
 // -------------------------------------------------
 // ----------------------------------------- Setters 
 
@@ -168,6 +168,17 @@ void Cesta::reg( Produto* prod )
 		produtos.insert(std::pair<string, Produto*>(prod->get_barcode(),prod));	// Regista o produto.
 		cout << " Produto foi registrado.";
 	}
+
+	// Atualiza a lista de fornecedores
+/*
+	int count = 0;	// guarda o número de vezes que encontrou um produto da cesta que era do mesmo fornecedor que 'prod'
+	
+	for (map<string,Produto*>::iterator it = produtos.begin(); it!=mymap.end() and count<2; it++)
+	{ 
+		if(it->second->get_provider() == prod->get_provider()) count++;
+	}
+
+	if(count > 2) prod->get_provider() */
 }
 
 /**
@@ -394,7 +405,6 @@ bool Cesta::load()
 {
 	string filename("data/my_store.csv");    // Local do arquivo a ser salvo com os dados da cesta
 	string dummy_type;	// Armazena o tipo do produto
-	//bool found_quote = false;	//indica se encontrou uma aspas
 	int lines = 0;	// marca por quantas novas linhas ja passaram
 
 	// Criando ponteiros para novos tipos
@@ -420,11 +430,10 @@ bool Cesta::load()
 		{
 			try
 			{
-				//while( inData.tellg() != -1)	// enquanto não chegar ao fim do arquivo
-				while( lines <= new_lines)	// enquanto não chegar ao fim do arquivo
+				while( lines <= new_lines and inData.peek() != -1)	// enquanto não chegar ao fim do arquivo
 				{
 					// primeira exceção: falta aspás no início da definição de tipo (e não estamos na última linha do arquivo)
-					if( char(inData.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Tipo.");
+					if( char(inData.peek()) != '\"') throw std::runtime_error("Faltando aspas em Tipo.");
 					inData.ignore(1);	// ignora o primeiro '\"'
 					getline(inData, dummy_type, '\"');	// ex.: dummy_type = "CD"
 					// segunda exceção: tipo extraído não é válido
@@ -441,7 +450,8 @@ bool Cesta::load()
 							cerr << "[CAUGHT] Cesta::load(): " << e.what() << endl;
 						}
 
-						new_cd->load_csv_it(inData);	// Carrega o new_ com o conteudo de uma linha de inData
+						new_cd->load_csv_P(inData);	// Carrega os dados comuns a todos Produtos em new_
+						new_cd->load_csv_it(inData);	// Carrega o new_ com os dados comuns ao tipo dele (CD)
 						produtos.insert(std::pair<string, Produto*>(new_cd->get_barcode(),new_cd));	// Armazena o produto no mapa de produtos diretamente
 						new_cd = NULL;
 					}
@@ -453,7 +463,8 @@ bool Cesta::load()
 							cerr << "[CAUGHT] Cesta::load(): " << e.what() << endl;
 						}
 
-						new_sa->load_csv_it(inData);	// Carrega o new_ com o conteudo de uma linha de inData
+						new_sa->load_csv_P(inData);	// Carrega os dados comuns a todos Produtos em new_
+						new_sa->load_csv_it(inData);	// Carrega o new_ com os dados comuns ao tipo dele (CD)
 						produtos.insert(std::pair<string, Produto*>(new_sa->get_barcode(),new_sa));	// Armazena o produto no mapa de produtos diretamente
 						new_sa = NULL;
 					}
@@ -464,14 +475,14 @@ bool Cesta::load()
 
 			}catch(std::exception& e ){
 				cout<<"Na linha "<<lines+1<<" de "<<filename<<": " << e.what(); // se tiver lido pelo menos um produto, mostra o erro final.
-					
+				//[DEBUG]cout << endl << "peek = " << inData.peek()<< " and tellg = " << inData.tellg() << endl;
 				if(new_cd != NULL) delete new_cd;
 				if(new_sa != NULL) delete new_sa;
 					
 				inData.close();	// Fecha stream de leitura
 				return false;
 			}
-			return true;
+			return true;	// Leu o arquivo .csv sem chegar a nenhuma exceção
 		}
 		else cout << "\"" << filename << "\" está vazio." << endl;
 
@@ -567,26 +578,10 @@ bool Cesta::operator== ( Cesta &direita)
 {
 	if(produtos.size() != direita.produtos.size() )	return false;	// Se os tamanhos das listas comparadas forem diferentes, retorna falso.
 
-	//map<string, Produto*>::iterator esq;	// declara iterator que vai percorrer a Cesta que chamou esta função
-
-	// Se os tamanhos dos mapas comparados forem iguais
-	/*for(map<string, Produto*>::iterator dir = direita.produtos.begin();
-		dir != direita.produtos.end(); dir++)
-	{
-		for(esq = produtos.begin(); esq != produtos.end(); esq++)
-		{
-			//if( (*esq)->get_barcode() == (*dir)->get_barcode() ) break;	// Se algum item delas diferirem um do outro (até na ordem), retorna falso.
-			if( *(*esq) == *(*dir) ) break;	// Se forem iguais
-		}
-		if( esq == produtos.end())	// Se não encontrou um Produto de direita
-			return false;
-	}*/
 	for(auto& e : produtos)
 		if (direita.search(e.second->get_barcode()) == direita.produtos.end() )	return false;	// se não achar o produto, retorna falso
 
 	return true;
-	
-	//return (produtos == direita.produtos);
 }
 
 /**
@@ -615,8 +610,6 @@ Cesta& Cesta::operator= (Cesta &direita)
 			}catch (std::exception &e) {cerr << "[CAUGHT] operator=: " << e.what() << endl;}
 		}
 	}
-	
-	//*this
 
 	return *this;
 }

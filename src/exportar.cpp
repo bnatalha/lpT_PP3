@@ -206,7 +206,9 @@ void export_cesta()
 	Cesta estoque;	/**< Cesta que carregara o estoque */
 	Cesta to_export;	/**< Cesta que será exportada */
 
-	if (estoque.load()) // Se conseguir Carregar o estoque
+	estoque.load(); // Se conseguir Carregar o estoque
+
+	if(estoque.size() > 0)
 	{
 		if(fornecerdor_flag and tipo_flag )	// Se tiver as flags -f e -t
 			to_export.fetch_type_and_provider_from(estoque,meutipo,meufornecedor);
@@ -220,5 +222,5 @@ void export_cesta()
 		to_export.export_csv(meuarquivo.c_str(), full_flag);
 	}
 	else
-		cout << " Não pode realizar a exportação." << endl;
+		cout << " Arquivo \"data\\my_store.csv\" está vazio." << endl;
 }

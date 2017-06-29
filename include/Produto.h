@@ -24,7 +24,6 @@ class Produto
 		string provider;	/**< Nome do fornecedor deste produto */
 		float price;	/**< Preço do produto por unidade em R$*/
 		string barcode;	/**< Código de barras (13 números símbolo EAN-13)*/
-
 		int quantity;	/**< Quantidade deste produto em estoque */
 		
 	public:
@@ -86,43 +85,43 @@ class Produto
 		// ========================= Getters e Setters Virtuais =========================
 		//  = Getters =
 		virtual string get_expiration() { return ""; }	/**< Retorna o vencimento do produto (string) */
-		virtual float get_alchool() {return 0;}	/**< Retorna o teor alcoólico (em %) do produto (float) */
-		virtual float get_sugar() {return 0;}	/**< Retorna a taxa de açucar (em mg) do produto (float) */
+		//virtual float get_alchool() {return 0;}	/**< Retorna o teor alcoólico (em %) do produto (float) */
+		//virtual float get_sugar() {return 0;}	/**< Retorna a taxa de açucar (em mg) do produto (float) */
 		virtual float get_sodium() {return 0;}	/**< Retorna a taxa de sódio (em mg) do produto */
 		virtual bool get_gluten() {return true;}	/**< Retorna se o produto contém glúten ou não */
 		virtual bool get_lactose() {return true;}	/**< Retorna se o produto contém lactose ou não */
-		virtual int get_number() {return 0;}	/**< Retorna o número do lote do produto (int) */
+		//virtual int get_number() {return 0;}	/**< Retorna o número do lote do produto (int) */
 		virtual string get_date() {return "";}	/**< Retorna a data de produção do lote do produto (string) */
 		
 		virtual string get_name() {return "";}	/**< Retorna título do CD (string) */
 		virtual string get_title() {return "";}	/**< Retorna o título do livro (string) */
 		virtual string get_artist() {return "";}	/**< Retorna artista do CD (string) */
-		virtual string get_author() {return "";}	/**< Retorna o autor do livro (string) */
+		//virtual string get_author() {return "";}	/**< Retorna o autor do livro (string) */
 		virtual string get_style() {return "";}	/**< Retorna o estilo do CD (string) */
 		virtual string get_genre() {return "";}	/**< Retorna o gênero do produto */
-		virtual string get_publisher() {return "";}	/**< Retorna a editora do livro (string) */
-		virtual int get_duration() {return 0;}	/**< Retorna a duração (em minutos) do DVD (int) */
-		virtual int get_year() {return 0;}	/**< Retorna ano de publicação do livro (int) */
+		//virtual string get_publisher() {return "";}	/**< Retorna a editora do livro (string) */
+		//virtual int get_duration() {return 0;}	/**< Retorna a duração (em minutos) do DVD (int) */
+		//virtual int get_year() {return 0;}	/**< Retorna ano de publicação do livro (int) */
 
 		//Setters
 		virtual void set_expiration(const string &x) {}	/**< Altera o vencimento do produto (string) */
-		virtual void set_alchool(const float &x) {}	/**< Altera o teor alcoólico (em %) do produto (float) */
-		virtual void set_sugar(const float &x) {}	/**< Altera a taxa de açucar (em mg) do produto (float) */
+		//virtual void set_alchool(const float &x) {}	/**< Altera o teor alcoólico (em %) do produto (float) */
+		//virtual void set_sugar(const float &x) {}	/**< Altera a taxa de açucar (em mg) do produto (float) */
 		virtual void set_sodium(const float &x) {}	/**< Altera a taxa de açucar (em mg) do produto */
 		virtual void set_gluten(const bool &x) {}	/**< Altera o atributo que diz se o produto contém glúten ou não */
 		virtual void set_lactose(const bool &x) {}	/**< Altera o atributo que diz se o produto contém lactose ou não */
-		virtual void set_number(const int &x) {}	/**< Altera o número do lote do produto (int) */
-		virtual void set_date(const string &x) {}	/**< Altera data de produção do lote do produto (string) */
+		//virtual void set_number(const int &x) {}	/**< Altera o número do lote do produto (int) */
+		//virtual void set_date(const string &x) {}	/**< Altera data de produção do lote do produto (string) */
 		
 		virtual void set_name(const string &x) {}	/**< Altera título do CD (string) */
 		virtual void set_title(const string &x) {}	/**< Altera o título do livro */
 		virtual void set_artist(const string &x) {}	/**< Altera artista do CD (string) */
-		virtual void set_author(const string &x) {}	/**< Altera o autor do livro (string) */
+		//virtual void set_author(const string &x) {}	/**< Altera o autor do livro (string) */
 		virtual void set_style(const string &x) {}	/**< Altera o estilo do CD (string) */
 		virtual void set_genre(const string &x) {}	/**< Altera o gênero do DVD */
-		virtual void set_duration(const int &x) {}	/**< Altera a duração (em minutos) do DVD (int) */
-		virtual void set_publisher(const string &x) {}	/**< Altera a editora do livro (string) */
-		virtual void set_year(const int &x) {} /**< Altera o ano de publicação do livro (int) */
+		//virtual void set_duration(const int &x) {}	/**< Altera a duração (em minutos) do DVD (int) */
+		//virtual void set_publisher(const string &x) {}	/**< Altera a editora do livro (string) */
+		//virtual void set_year(const int &x) {} /**< Altera o ano de publicação do livro (int) */
 
 		virtual bool change() =0;
 		
@@ -131,6 +130,7 @@ class Produto
 		virtual void save_csv_it (std::ofstream& out) =0;	/**< Função virtual pura que define como vai ser salva as informações dos produtos em um arquivo .csv */
 		virtual void load_csv_it (std::ifstream& in) =0;	/**< Função virtual pura que define como seram lidas as informações dos produtos de um arquivo .csv */
 		void save_csv_P (std::ofstream& out);	/**< Salva apenas os dados comuns a todos objetos de uma subclasse da classe Produto ('product_type', 'provider', 'barcode', 'quantity' e 'price')  */
+		void load_csv_P (std::ifstream& in);	/**< Lê apenas os dados comuns a todos objetos de uma subclasse da classe Produto ('product_type', 'provider', 'barcode', 'quantity' e 'price')  */
 		
 };
 
@@ -256,6 +256,9 @@ bool my_question(const char* question){
 	return ( strcmp(answer,"y") == 0 );	// retorna true se a resposta for "sim"
 }
 
+/**
+* @return true se alterou o código de barras do produto
+*/
 bool Produto::change_product_specs()
 {
 	bool barcode_changed = false;
@@ -303,6 +306,9 @@ bool Produto::change_product_specs()
 	return barcode_changed;
 }
 
+/**
+* @param out Referência para um stream de saída para um arquivo
+*/
 void Produto::save_csv_P(std::ofstream& out)
 {
 	out << '\"' << product_type << "\";"	//"tipo";
@@ -315,6 +321,51 @@ void Produto::save_csv_P(std::ofstream& out)
 	// Exemplo de impressão:
 	//"Salgado";"Salgarilhos";2;"000000133";5
 	//
+}
+
+/**
+* @param in Referência para um stream de entrada para um arquivo
+*/
+void Produto::load_csv_P (std::ifstream& in)
+{
+	string dummy;
+
+	// Fornecedor
+	
+	// exceção:
+	if( char(in.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Fornecedor.");
+	in.ignore(1);	// ignora o primeiro '\"'
+	getline(in, dummy, '\"');	// ex.: dummy = "Sony Music"
+	set_provider(dummy);	// modifica Fornecedor
+	// exceção: 
+	if( char(in.peek()) != ';' ) throw std::runtime_error("Faltando ';' entre Fornecedor e Preço.");	
+	in.ignore(1);	// ignora o ';'
+
+	// Preço
+	getline(in, dummy, ';');	// ex.: dummy = "9.4"
+	//exceção
+	try{set_price( std::stof(dummy) );}	// modifica Fornecedor
+	catch(std::exception& e){
+		throw std::runtime_error("Preço inválido");
+	}
+
+	// Código de Barras
+	// exceção:
+	if( char(in.peek()) != '\"' ) throw std::runtime_error("Faltando aspas em Código de barras.");
+	in.ignore(1);	// ignora o primeiro '\"'
+	getline(in, dummy, '\"');	// ex.: dummy = "000000123"
+	set_barcode(dummy);	// modifica Código de Barras
+	// exceção: 
+	if( char(in.peek()) != ';' ) throw std::runtime_error("Faltando ';' entre Código de barras e Quantidade.");
+	in.ignore(1);	// ignora o ';'
+		
+	// Quantidade
+	getline(in, dummy, ';');	// ex.: dummy = "2"
+	// exceção: 
+	try{set_quantity( std::stoi(dummy) );}	// modifica Quantidade
+	catch(std::exception& e){
+		throw std::runtime_error("Quantidade inválida");
+	}
 }
 
 #include "Produto_tipos.h"
