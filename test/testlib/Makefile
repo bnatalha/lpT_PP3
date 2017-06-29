@@ -15,10 +15,8 @@ LIB_DIR =lib
 # For debugging
 CPPFLAGS += -Wall -ansi -std=c++11 -pedantic -O0 -g -I $(INC_DIR) -I.
 
-
-# Compilators
-CC =g++
-AR =ar
+CC		= g++
+ARCHIVE = ar
 
 # - - - - - - - - - - - - - - - - - - - -
 # - - ----------- TARGETS ----------- - -
@@ -58,9 +56,9 @@ vale:
 
 # LINUX
 
-qlevetudo.so: $(SRC_DIR)/Menu.cpp $(INC_DIR)/CD.h $(INC_DIR)/Salgado.h $(INC_DIR)/Produto.h $(INC_DIR)/header.h
-	$(CC) $(CPPFLAGS) -fPIC -c $(SRC_DIR)/Menu.cpp -o $(OBJ_DIR)/Menu.o
-	$(CC) -shared -fPIC -o $(LIB_DIR)/$@ $(OBJ_DIR)/Menu.o
+qlevetudo.so: $(SRC_DIR)/listagem.cpp $(INC_DIR)/header.h $(INC_DIR)/listagem.h $(INC_DIR)/qlt.h
+	$(CC) $(CPPFLAGS) -fPIC -c $(SRC_DIR)/listagem.cpp -o $(OBJ_DIR)/listagem.o
+	$(CC) -shared -fPIC -o $(LIB_DIR)/$@ $(OBJ_DIR)/listagem.o
 	@echo "++++++ [Biblioteca dinâmica para linux criada em $(LIB_DIR)/$@] ++++++"
 
 QLT:
@@ -73,9 +71,9 @@ exportar:
 
 # WINDOWS
 
-qlevetudo.dll: $(SRC_DIR)/Menu.cpp $(INC_DIR)/CD.h $(INC_DIR)/Salgado.h $(INC_DIR)/Produto.h $(INC_DIR)/header.h
-	$(CC) $(CPPFLAGS) -c $(SRC_DIR)/Menu.cpp -o $(OBJ_DIR)/Menu.o
-	$(CC) -shared -o $(LIB_DIR)/$@ $(OBJ_DIR)/Menu.o
+qlevetudo.dll: $(SRC_DIR)/listagem.cpp $(INC_DIR)/CD.h $(INC_DIR)/Salgado.h $(INC_DIR)/Produto.h $(INC_DIR)/header.h
+	$(CC) $(CPPFLAGS) -c $(SRC_DIR)/listagem.cpp -o $(OBJ_DIR)/listagem.o
+	$(CC) -shared -o $(LIB_DIR)/$@ $(OBJ_DIR)/listagem.o
 	@echo "+++ [Biblioteca dinamica para windows criada em $(LIB_DIR)/$@] +++"
 
 QLT.exe:
@@ -88,5 +86,4 @@ exportar.exe:
 # ================ CLEANER ================
 # Removes objects
 clean:
-	@echo "Removendo arquivos objeto e executaveis/binarios..."
-	@rm -rf $(OBJ_DIR)/*
+	$(RM) build/*.o

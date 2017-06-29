@@ -10,101 +10,11 @@
 * @sa --
 */
 
-#include "header.h"
-#include "Produto.h"
+#include "qlevetudo.h"
 
-/**
-* @enum direction
-* @brief indica qual Cesta receberá informações e em qual Cesta será realizada a busca por Produtos/informações
-*/
-enum direction {loja_loja = 0, loja_venda = 1, venda_loja, venda_venda };
+namespace qlt{
 
-/**
-* @brief Imprime se uma venda foi iniciada e qual Cesta está sendo operada 
-* @param out Referência para uma stream de saída
-*/
-void print_direction(direction& x , std::ostream& out)
-{
-	if(x == direction::loja_loja) out << "Não iniciou venda. Operando: estoque";
-	if(x == direction::loja_venda) out << "Não iniciou venda. Operando: cesta do cliente";
-	if(x == direction::venda_loja) out << "Iniciou venda. Operando: estoque";
-	if(x == direction::venda_venda) out << "Iniciou venda. Operando: cesta do cliente";
-}
 
-/**
-* @class Cesta
-* @brief Classe que armazenará uma lista de ponteiro para Produto de produto, 
-* @tparam Um tipo de produto (CD, DVD, Fruta, etc.)
-*/
-class Cesta
-{
-	private:
-		map<string,Produto* > produtos;	/**< Onde são armazenados os produtos da Cesta */
-		//map<string,int> fornecedores;	/**< Onde são armazenados os fornecedores da Cesta */
-
-	public:
-
-		/**
-		* @brief Constrói um objeto Cesta vazio
-		*/
-		Cesta(){}
-
-		/**
-		* @brief Cesta criada a partir de outra Cesta (cópia)
-		* @param original Cesta a ser copiado
-		*/
-		Cesta( Cesta &origem)	{*this = origem;}
-
-		/**
-		* @brief Destrói todos os elementos alocados na Cesta
-		*/
-		~Cesta()
-		{
-			for (map<string,Produto* >::iterator it = produtos.begin() ; it != produtos.end(); it++)
-				if(it->second != NULL) delete it->second;	// Deleta todos os Produtos alocados no mapa interno da Cesta
-		}
-
-		// Métodos
-		// Getters
-		int units();	/**< Retorna a quantidade total de produtos (contando com as unidade) */
-		int size();	/**< Retorna a quantidade total de produtos cadastrados */
-		float price();	/**< Retorna a soma dos preços de todos os produtos (contando com as unidade) neste grupo */
-		typename map<string, Produto*>::iterator search( const string& m_barcode ); /**< Procura Por um produto cadastrado que tenha seu código de barras igual a 'm_barcode' */				
-		bool is_valid_type( const string& str); /*!*/
-		//string* get_provider_list();	/*!*/
-
-		// Setters
-		void reg( Produto* prod );	/**< Cadastra um produto na lista (se ele ja estiver cadastrado, aumenta a sua quantidade em um) */
-		void unreg( typename map<string, Produto*>::iterator& it ); /**< Descadastra um produto */
-		void absorb_qnt(typename map<string, Produto*>::iterator it, const int x); /**<  Move um número de unidades do produto apontado por 'it' a Cesta que chamou está função. */
-		void clear();	/**< Limpa o mapa interno, desalocando tudo e removendo os pares existentes */
-		void fetch_from( Cesta& orig, const string& m_search);
-		void fetch_type_and_provider_from( Cesta& orig, const string& m_type, const string& m_provider );
-		
-		// Printers
-		void print( std::ostream& out );	/**< Imprime uma lista com todos os produtos do grupo */ 
-		void print_type( std::ostream& out, const string& my_type );	/**< Imprime produtos de um tipo */
-		void print_provider( std::ostream& out, const string& my_provider );	/**< Imprime produtos de um provedor */
-		void print_notafiscal(std::ostream& out); /**<  Imprime os Produtos no formato de um cupom fiscal da loja */ 
-		
-		// Manipulação de arquivos
-		bool save();	/**<  Salva os Produtos e listas desta Cesta em um arquivo .csv */ 
-		bool load();	/**<  Carrega os Produtos e listas desta Cesta de um arquivo .csv */
-		bool export_csv(const char* filename, int& print_full);
-
-		// Sobrecarga de operadores
-		bool operator== ( Cesta& direita);	/**< Compara um grupo com outro pra ver se são iguais (possuem a mesma lista de produtos)*/
-		Cesta& operator= (Cesta& direita);	/**< Atribui a lista de um grupo para este */
-		//friend &istream operator>> (istream &in, const Produto x);	/**< Sobrecarga do >> */
-
-		// Friends
-		friend void menu_principal (Cesta& m_loja, Cesta& m_cliente);
-		friend bool sub_modificar(typename map<string, Produto*>::iterator& it, Cesta& target );
-		friend void sub_encontrou_produto( typename map<string, Produto*>::iterator& it, Cesta& m_loja, Cesta& m_cliente, direction my_case );
-		friend void sub_consulta (Cesta& m_loja, Cesta& m_cliente, direction my_case );
-		friend void sub_cadastro_loja(Cesta& target);
-		friend void sub_venda(Cesta &m_loja, Cesta& m_cliente);
-};
 
 // =================================================================================
 // ================================= IMPLEMENTAÇÃO ================================= 
@@ -629,6 +539,8 @@ bool Cesta::is_valid_type( const string& str)
 	return false;
 }
 
-#include "Menu.h"
+}
+
+//#include "Menu.h"
 
 #endif

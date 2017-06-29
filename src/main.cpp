@@ -8,19 +8,15 @@
 */
 
 #include "header.h"
-#include "Produto.h"
-#include "Produto_tipos.h"
-#include "Cesta.h"
-
-
+#include "qlevetudo.h"
 /**
 * @brief Função principal
 */
 int main(int argc, char const *argv[])
 {
 
-	Cesta loja;	/**< Produtos da loja */
-	Cesta cliente;	/**< Produtos que o cliente deseja comprar da loja */
+	qlt::Cesta loja;	/**< Produtos da loja */
+	qlt::Cesta cliente;	/**< Produtos que o cliente deseja comprar da loja */
 
 	cout << "Bem vindo ao sistema de admnistração de produtos da QLeveTudo." << endl
 		<< 	"Carregando Cesta da loja...";

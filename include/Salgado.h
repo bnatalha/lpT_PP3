@@ -11,81 +11,10 @@
 * @sa --
 */
 
-#include "Produto.h"
-#include "header.h"
+#include "qlevetudo.h"
 
-/**
-* @class Salgado
-* @brief Herdeira da classe Produto, usada para produtos do tipo salgado
-*/
-class Salgado : public Produto
+namespace qlt
 {
-	//friend class Cesta;
-	
-	private:
-		string expiration; /**< Vencimento do Salgado */
-		float sodium;	/**< Taxa de sodio (em mg) */
-		bool gluten;    /**< Bala contem glúten ou nao */
-		bool lactose;   /**< Bala contem lactose ou nao */
-
-	public:
-
-		/**
-		* @brief Constrói um objeto Salgado sem especificar seus dados
-		*/
-		Salgado() 
-			: Produto("Salgado","", 0, "00000000"), expiration(""), sodium(0), gluten(false), lactose(false)
-		{}
-
-		/**
-		* @brief Constrói um objeto Salgado especificano seus dados através da passagem de seus atributos como parâmetro
-		*/
-		Salgado(string vencimento, float sodio, bool glut, bool lacto) 
-			: Produto("Salgado","", 0, "00000000"), expiration(vencimento), sodium(sodio), gluten(glut), lactose(lacto)
-		{}
-
-		/**
-		* @brief Constrói um objeto Salgado copiando de um outro obejto Salgado
-		*/
-		Salgado(const Salgado& orig) 
-			: Produto( orig.get_type(), orig.get_provider(), orig.get_price(), orig.get_barcode()),
-			expiration(orig.expiration), sodium(orig.sodium), gluten(orig.gluten), lactose(orig.lactose)
-		{ set_quantity(orig.get_quantity()); }
-
-		/**
-		* @brief Constrói um objeto Salgado a partir de um ponteiro para um Porduto
-		*/
-		Salgado(Produto* orig) 
-			: Produto( orig->get_type(), orig->get_provider(), orig->get_price(), orig->get_barcode()),
-			expiration(orig->get_expiration()), sodium(orig->get_sodium()), gluten(orig->get_gluten()), lactose(orig->get_lactose())
-		{ set_quantity(orig->get_quantity()); }
-
-		/**
-		* @brief Destrutor virtual de Salgado
-		*/
-		virtual ~Salgado(){}
-
-		// Métodos
-
-		// Gets
-		string get_expiration() { return expiration; }
-		float get_sodium() { return sodium; }	/**< Retorna a taxa de sódio (em mg) do produto */
-		bool get_gluten() { return gluten; }	/**< Retorna se o produto contém glúten ou não */
-		bool get_lactose() { return lactose; }	/**< Retorna se o produto contém lactose ou não */
-
-		// Sets
-		void set_expiration(const string &x) { expiration = x; }
-		void set_sodium(const float &x) { sodium = x; }	/**< Altera a taxa de açucar (em mg) do produto */
-		void set_gluten(const bool &x) { gluten = x; }	/**< Altera o atributo que diz se o produto contém glúten ou não */
-		void set_lactose(const bool &x) { lactose = x; }	/**< Altera o atributo que diz se o produto contém lactose ou não */
-		bool change(); /**< Altera tudo do Salgado */
-
-		// auxiliar da sobrecarga de extração
-		void print_it (std::ostream& out) const;	/**< Função que define como vai ser a impressão do produto */
-		void save_csv_it (std::ofstream& out);	/**< Função que define como vai ser salva as informações dos produtos em um arquivo .csv */
-		void load_csv_it (std::ifstream& in);	/**< Função que define como seram lidas as informações dos produtos de um arquivo .csv */
-};
-
 // Implementações
 
 /**
@@ -217,5 +146,5 @@ void Salgado::load_csv_it (std::ifstream& in)
 	
 	// fim da linha
 }
-
+}
 #endif
