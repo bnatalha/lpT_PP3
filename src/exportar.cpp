@@ -37,87 +37,77 @@ static string meutipo;	/**< Guarda o nome do tipo passado pelo usuário como arg
 static string meufornecedor;	/**< Guarda o nome do fornecedor passado pelo usuário como argumento da flag -f */
 static string meuarquivo;	/**< Guarda o nome do arquivo (sem extensão e sem nome de diretório) passado pelo usuário como argumento */
 
+qlt::Cesta estoque; /**< Cesta que carregara o estoque */
+
 /**
 * @brief Função principal de exportação
 */
 int main (int argc,char *argv[])
 {
 	char opt;	/**< recebe os argumentos marcados como flags pela operação optget_long()*/
+	
+	try
+	{	// Exceção caso não seja passado nenhum argumento
+		if(argc == 1)
+			throw std::invalid_argument("Nenhum argumento passado.");
+		
+		// Opções longas
+		const struct option long_options[] {
+			{"tipo", required_argument, &tipo_flag, 't'},
+			{"fornecedor", required_argument, &fornecerdor_flag, 'f'},
+			{"full", no_argument, &full_flag, 'u'},
+			{0, 0, 0, 0},
+		} ;
+	
+	    // Analisando os argumentos passados
+	    while ( (opt=getopt_long(argc, argv, "t:f:", long_options, NULL)) > 0 ) {
+	        switch ( opt ) {
+	            case 't':	//caso tenha detectado a flag seja '-t'
+	            	valid_arg(opt,optarg);	// Se optarg for um argumento válido 
+	               
+	                meutipo = optarg;	// atribui a 'meutipo' o argumento de optarg
+	                tipo_flag = 1 ;	// "sobe" a flag que avisa que -t foi detectado
+	                break ;
+	            case 'f': //caso opt tenha detectado a flag '-f'
+	                valid_arg(opt,optarg); // Verifica se optarg for um argumento válido
+	                
+	                meufornecedor = optarg; // atribui a 'meufornecedor' o argumento de optarg
+	                fornecerdor_flag = 1 ; // "sobe" a flag que avisa que -f foi detectado
+	                
+	                break ;
+	            case 'u': //caso opt tenha detectado a flag --full
+	                full_flag = 1 ;
+	                break ;
+	            default:	// Se não for nenhum dos caso
+					//mostrar_ajuda(argv[0]);	// mostra ajuda de como executar o programa
+	            	throw std::invalid_argument("Argumento inválido.");
+					break;
+	        }
+	    }
 
-	// Exceção caso não seja passado nenhum argumento
-	if(argc == 1)
-	{//[THROW]
-		cout << "Nenhum argumento passado." << endl;
+	    
+	    if(full_flag and !tipo_flag){
+	    	cout << "--full: deve ser utilizado com -t. Veja a ajuda:" << endl;
+	    	throw std::invalid_argument("");
+	    }
+	    if(optind == argc)	// não sobrou argumentos pra serem o nome do arquivo de saída
+			throw std::invalid_argument("Arquivo de saída não foi passado.");
+		else if (optind+1 < argc) // mesmo contando com o suposto que argumento que seria do nome do arquivo de saída, ainda sobra argumentos
+			throw std::invalid_argument("Muitos argumentos passados. Tente novamente.");
+		else if (optind+1 == argc){	// Se for o número correto de argumentos
+			meuarquivo = argv[optind];	//atribui a meu arquivo
+			export_cesta();	// performa a exportação com os critérios informados
+			cout << endl;
+		}
+	} catch(std::exception &e)
+	{
+		cout << e.what() << endl;
+
 		mostrar_ajuda(argv[0]);
-		exit(1);
-	}
-
-	// Opções longas
-	const struct option long_options[] {
-		{"tipo", required_argument, &tipo_flag, 't'},
-		{"fornecedor", required_argument, &fornecerdor_flag, 'f'},
-		{"full", no_argument, &full_flag, 'u'},
-		{0, 0, 0, 0},
-	} ;
-
-    // Analisando os argumentos passados
-    while ( (opt=getopt_long(argc, argv, "t:f:", long_options, NULL)) > 0 ) {
-        switch ( opt ) {
-            case 't':	//caso tenha detectado a flag seja '-t'
-            	if(valid_arg(opt,optarg))	// Se optarg for um argumento válido 
-                {
-                	meutipo = optarg;	// atribui a 'meutipo' o argumento de optarg
-                	tipo_flag = 1 ;	// "sobe" a flag que avisa que -t foi detectado
-                }else{
-                	cout << opt << ": [argumento inválido]. \""<< optarg << "\" é o nome de uma flag." << endl;
-                	exit(1);	//[THROW]
-                }
-                break ;
-            case 'f': //caso opt tenha detectado a flag '-f'
-                if(valid_arg(opt,optarg)) // Se optarg for um argumento válido
-                {
-                	meufornecedor = optarg; // atribui a 'meufornecedor' o argumento de optarg
-                	fornecerdor_flag = 1 ; // "sobe" a flag que avisa que -f foi detectado
-                }else{
-                	cout << opt << ": [argumento inválido]. \""<< optarg << "\" é o nome de uma flag." << endl;
-                	exit(1); //[THROW]
-                }
-                break ;
-            case 'u': //caso opt tenha detectado a flag --full
-                full_flag = 1 ;
-                break ;
-            default:	// Se não for nenhum dos caso
-				mostrar_ajuda(argv[0]);	// mostra ajuda de como executar o programa
-				break;
-        }
-    }
-
-    //cout << "tipo(" << tipo_flag << "):" << meutipo << endl;
-    //cout << "fornecedor(" << fornecerdor_flag<< "):" << meufornecedor << endl;
-    //cout << "full(" << full_flag << "): type on?" << tipo_flag << endl;
-
-    // [Throw] invalid argument
-    if(full_flag and !tipo_flag){
-    	cout << "--full: deve ser utilizado com -t. Veja a ajuda:" << endl;
-    	mostrar_ajuda(argv[0]);
-    }
-    // [Throw] invalid argument
-	if(optind == argc)	// não sobrou argumentos pra serem o nome do arquivo de saída
-		cout << "Arquivo de saída não foi passado." << endl;
-	// [Throw] invalid argument
-	else if (optind+1 < argc) // mesmo contando com o suposto que argumento que seria do nome do arquivo de saída, ainda sobra argumentos
-		cout << "Muitos argumentos passados. Tente novamente." << endl;	
-	// [Throw] invalid argument
-	else if (optind+1 == argc){	// Se for o número correto de argumentos
-		meuarquivo = argv[optind];	//atribui a meu arquivo
-		export_cesta();	// performa a exportação com os critérios informados
-		cout << endl;
 	}
 
 	cout << ">>> Saindo do programa..." << endl;
 	return 0;
-
-
 }
 
 /**
@@ -144,14 +134,12 @@ void mostrar_ajuda(char *s)
 */
 bool nao_eh_flag(char operacao, char* meu_argumento)
 {
-	//[THROW] invalid argument
 	if(strcmp(meu_argumento,"--full") == 0 or
 		strcmp(meu_argumento,"-t") == 0 or
 		strcmp(meu_argumento,"-f") == 0)	// se o argumento for igual a uma das flags
 	{
-		cout << '-' << operacao << ": [argumento inválido]. \""<< meu_argumento << "\" é o nome de uma flag." << endl;
-		//return false;
-		exit(1);
+		cout << '-' << operacao << ": [argumento inválido]. \""<< meu_argumento << "\"";
+		throw std::invalid_argument(" é o nome de uma flag.");
 	}
 	
 	return true;
@@ -170,25 +158,11 @@ bool valid_arg(char operacao, char* meu_argumento)
 	{
 		if(operacao == 't')	// se for -t
 		{
-			//[THROW] invalid argument
 			if(strcmp(meu_argumento, "CD") != 0 and
 				strcmp(meu_argumento, "Salgado") != 0)
 			{
 				cout << '-' << operacao << ": [argumento inválido]. \""<< meu_argumento << "\" não é um nome de um tipo válido."<< endl;
-				exit(1);
-			}
-			else return true;
-		}
-
-		if(operacao == 'f')	// se for -f
-		{
-			//recupera lista com nome de fornecedores: usa de condição
-			//[THROW] invalid argument
-			if(strcmp(meu_argumento, "Maria") != 0 and
-				strcmp(meu_argumento, "Sony") != 0)
-			{
-				cout << '-' << operacao << ": [argumento inválido]. \""<< meu_argumento << "\" não existe na lista de fornecedores." << endl;
-				exit(1);
+				throw std::invalid_argument(" não é um nome de um tipo válido.");
 			}
 			else return true;
 		}
@@ -206,7 +180,6 @@ bool valid_arg(char operacao, char* meu_argumento)
 */
 void export_cesta()
 {
-	qlt::Cesta estoque;	/**< Cesta que carregara o estoque */
 	qlt::Cesta to_export;	/**< Cesta que será exportada */
 
 	estoque.load(); // Se conseguir Carregar o estoque
