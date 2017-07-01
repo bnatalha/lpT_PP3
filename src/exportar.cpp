@@ -8,15 +8,8 @@
 */
 
 #include "header.h"
-#include "Produto.h"
-#include "Salgado.h"
-#include "CD.h"
-#include "Cesta.h"
+#include "qlevetudo.h"
 
-//#include <unistd.h>
-//#include <cstring>	//para strcmp()
-//#include <cstring.h>
-//#include <cstdlib.h>
 #include <getopt.h>
 
 // objetivo :
